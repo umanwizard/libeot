@@ -9,6 +9,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "EOTError.h"
+
 struct EUDCInfo
 {
   bool exists;
@@ -80,6 +82,12 @@ struct EOTMetadata
   unsigned fontDataOffset;
   struct EUDCInfo eudcInfo;
 };
+
+unsigned EOTgetMetadataLength(uint8_t *bytes);
+uint32_t EOTreadU32LE(uint8_t *bytes);
+uint16_t EOTreadU16LE(uint8_t *bytes);
+enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
+    enum EOTMetadata *out);
 
 #endif /* #define __LIBEOT_EOT_H__ */
 

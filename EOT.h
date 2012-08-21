@@ -14,15 +14,16 @@
 struct EUDCInfo
 {
   bool exists;
+  uint32_t codePage;
   uint32_t flags;
   uint32_t fontDataSize;
-  unsigned fontDataOffset;
+  uint8_t *fontData;
 };
 
 enum EOTVersion
 {
   VERSION_1 = 1,
-  VERISON_2 = 2,
+  VERSION_2 = 2,
   VERSION_3 = 3
 };
 
@@ -81,13 +82,15 @@ struct EOTMetadata
   uint32_t fontDataSize;
   unsigned fontDataOffset;
   struct EUDCInfo eudcInfo;
+  /* used for storing the whole string so it can be
+   * deleted properly if there is an error in the metadata parser. */
+  uint16_t do_not_use_size;
+  uint16_t *do_not_use;
 };
 
 unsigned EOTgetMetadataLength(uint8_t *bytes);
-uint32_t EOTreadU32LE(uint8_t *bytes);
-uint16_t EOTreadU16LE(uint8_t *bytes);
 enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
-    enum EOTMetadata *out);
+    struct EOTMetadata *out);
 
 #endif /* #define __LIBEOT_EOT_H__ */
 

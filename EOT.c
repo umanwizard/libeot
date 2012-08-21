@@ -208,7 +208,7 @@ enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
   }
   EOT_ENSURE_SCANNER(4);
   out->checkSumAdjustment = EOTreadU32LE(scanner);
-  scanner += 20;
+  scanner += 22;
   EOT_ENSURE_STRING_NOERR(EOTgetString(&scanner, bytes, bytesLength, &(out->familyNameSize),
         &(out->familyName)));
   scanner += 2;

@@ -244,6 +244,10 @@ enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
       scanner += 4;
       EOT_ENSURE_STRING_NOERR(EOTgetByteArray(&scanner, bytes, bytesLength,
             &(out->eudcInfo.fontDataSize), &(out->eudcInfo.fontData)));
+      if (out->eudcInfo.fontDataSize > 0)
+      {
+        out->eudcInfo.exists = true;
+      }
     }
   }
   out->fontDataOffset = scanner - bytes;

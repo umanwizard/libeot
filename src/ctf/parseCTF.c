@@ -85,8 +85,13 @@ enum EOTError unpackCVT(struct SFNTTable *out, struct Stream *sIn)
   {
     sResult = _ucvt_rdVal(sIn, &lastValue);
     CHK_RD2(sResult);
-    BEWriteS16(&sOut, lastValue);
+    sResult = BEWriteS16(&sOut, lastValue);
+    if (sResult != EOT_STREAM_OK)
+    {
+      return EOT_LOGIC_ERROR;
+    }
   }
+  return EOT_SUCCESS;
 }
 
 /* http://www.w3.org/Submission/MTX/#id_255USHORT */

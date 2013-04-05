@@ -360,8 +360,7 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
 {
   struct Stream *in = streams[0];
   enum StreamResult sResult;
-  unsigned boundingBoxLocation;
-  enum EOTError returnedResult = EOT_SUCCESS;
+  enum EOTError returnedStatus = EOT_SUCCESS;
   RD2(BEWriteS16, out, numContours, sResult);
   if (calculateBoundingBox)
   {
@@ -439,7 +438,7 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
   enum EOTError result = decodePushInstructions(streams[1], out, pushCount);
   if (result != EOT_SUCCESS && result < EOT_WARN)
   {
-    returnedResult = result;
+    returnedStatus = result;
     goto CLEANUP;
   }
   /* copy over the rest of the instructions for the glyph */
@@ -508,12 +507,12 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
   CHK_RD2(sResult);
   RD2(BEWriteU16, out, (uint16_t)unpackedCodeSize, sResult);
   CHK_RD2(sResult);
-  returnedResult = EOT_SUCCESS;
+  returnedStatus = EOT_SUCCESS;
 CLEANUP:
   free(flags);
   free(xCoords);
   free(yCoords);
-  return returnedResult;
+  return returnedStatus;
 }
 
 enum StreamResult decodeGlyph(struct Stream **streams, struct Stream *out)

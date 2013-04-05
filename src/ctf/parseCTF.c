@@ -193,6 +193,7 @@ enum StreamResult _dpi_dump(struct Stream *out, enum _dpi_TypeRead *lastRead, un
       }
     }
   }
+  return EOT_SUCCESS;
 }
 
 enum StreamResult _dpi_put(int16_t value, struct Stream *out, enum _dpi_TypeRead *lastRead, unsigned *typeLastReadCount, int16_t *data, unsigned *dataIndex)

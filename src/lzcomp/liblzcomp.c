@@ -38,11 +38,9 @@ enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut, un
 		goto CLEANUP;
 	}
 	uint8_t versionMagic;
-	const unsigned block1Offset = 10;
 	uint32_t offsets[3];
 	offsets[0] = 10;
 	uint32_t copyLimit;
-	uint32_t block2Offset, block3Offset;
 	sResult = BEReadU8(buf, &versionMagic);
 	CHK_CN(sResult, EOT_MTX_ERROR);
 	sResult = BEReadU24(buf, &copyLimit);

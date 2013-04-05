@@ -226,7 +226,7 @@ enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
     EOT_ENSURE_STRING_NOERR(EOTgetString(&scanner, bytes, bytesLength, &(out->do_not_use_size),
           &(out->do_not_use)));
     EOT_ENSURE_SCANNER(4);
-    uint32_t rootStringChecksum = EOTreadU32LE(scanner);
+    EOTreadU32LE(scanner); /* root string checksum */
     scanner += 4;
     if (out->version == VERSION_3)
     {

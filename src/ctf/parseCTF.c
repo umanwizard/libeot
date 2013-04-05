@@ -578,14 +578,12 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf, struct SFNTTable *loca
   bool notEnoughGlyphs = false;
   seekAbsolute(streams[1], 0);
   seekAbsolute(streams[2], 0);
-  unsigned end = glyf->offset + glyf->bufSize; //FIXME ??????
   unsigned maxSimpleGlyphSize = 10 + 2 * maxpData->maxContours + 2 + maxpData->maxSizeOfInstructions + maxpData->maxPoints * 5;
   unsigned maxCompoundGlyphSize = 26 + maxpData->maxSizeOfInstructions;
   unsigned maxGlyphSize = umax(maxSimpleGlyphSize, maxCompoundGlyphSize);
   unsigned maxTableSize = maxpData->numGlyphs * maxGlyphSize;
   struct Stream sOut = constructStream(NULL, 0);
   reserve(&sOut, maxTableSize);
-  unsigned lastSize = 0;
   struct Stream sLocaOut = constructStream(NULL, 0);
   bool shortLoca = !(headData->indexToLocFormat);
   if (shortLoca)

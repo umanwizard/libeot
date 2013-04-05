@@ -41,6 +41,7 @@ enum EOTError TTFParseMaxp(struct SFNTTable *tbl, struct TTFmaxpData *out)
   RD2(BEReadU16, &s, &out->maxSizeOfInstructions, sResult);
   RD2(BEReadU16, &s, &out->maxComponentElements, sResult);
   RD2(BEReadU16, &s, &out->maxComponentDepth, sResult);
+  return EOT_SUCCESS;
 }
 
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */

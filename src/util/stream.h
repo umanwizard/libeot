@@ -70,8 +70,8 @@ enum StreamResult readNBits(struct Stream *s, uint32_t *out, unsigned n);
 
 enum StreamResult BEcheckSum32(struct Stream *s, uint32_t *out, unsigned beginPos, unsigned endPos);
 
-#define RD(fn, s, out, r) if (r = fn(s, out) != EOT_STREAM_OK) return r;
-#define RD2(fn, s, out, r) if (r = fn(s, out) != EOT_STREAM_OK) return EOT_CORRUPT_FILE;
+#define RD(fn, s, out, r) if ((r = fn(s, out)) != EOT_STREAM_OK) return r;
+#define RD2(fn, s, out, r) if ((r = fn(s, out)) != EOT_STREAM_OK) return EOT_CORRUPT_FILE;
 #define CHK_RD(sRes) if (sRes != EOT_STREAM_OK) return sRes
 #define CHK_RD2(sRes) if (sRes != EOT_STREAM_OK) return EOT_CORRUPT_FILE
 #define CHK_CN(sRes, fail) if (sRes != EOT_STREAM_OK) {returnedStatus = fail; goto CLEANUP;}

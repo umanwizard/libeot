@@ -19,7 +19,7 @@ unsigned be24ToCpu(const uint8_t *buf)
 {
 	return ((unsigned)buf[2]) | (((unsigned)buf[1]) << 8) | (((unsigned)buf[0]) << 16);
 }
-enum EOTError unpackMtx(struct Stream *buf, unsigned size, char **bufsOut, unsigned *bufSizesOut)
+enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut, unsigned *bufSizesOut)
 {
 	for (unsigned i = 0; i < 3; ++i)
 	{
@@ -61,7 +61,7 @@ enum EOTError unpackMtx(struct Stream *buf, unsigned size, char **bufsOut, unsig
 			goto CLEANUP;
 		}
 		long sizeOut;
-		bufsOut[i] = MTX_LZCOMP_UnPackMemory(lzcomp, buf->buf + offsets[i], sizes[i], &sizeOut, versionMagic);
+		bufsOut[i] = (uint8_t *)MTX_LZCOMP_UnPackMemory(lzcomp, buf->buf + offsets[i], sizes[i], &sizeOut, versionMagic);
 		bufSizesOut[i] = sizeOut;
 		if (!bufsOut[i])
 		{

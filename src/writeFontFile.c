@@ -32,7 +32,7 @@ enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, b
   long finalFontSize;
   if (compressed)
   {
-    char *ctfs[3];
+    uint8_t *ctfs[3];
     unsigned sizes[3];
     struct Stream sBuf = constructStream(buf, fontSize);
     enum EOTError result = unpackMtx(&sBuf, fontSize, ctfs, sizes);

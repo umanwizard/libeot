@@ -4,6 +4,6 @@
 #include "../EOTError.h"
 #include "../util/stream.h"
 
-enum EOTError unpackMtx(struct Stream *buf, unsigned size, char **bufsOut, unsigned *bufSizesOut);
+enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut, unsigned *bufSizesOut);
 
 #endif

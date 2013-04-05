@@ -156,6 +156,7 @@ enum StreamResult seekRelative(struct Stream *s, int offset)
     return EOT_SEEK_PAST_EOS;
   }
   s->pos = (unsigned)newPos;
+  return EOT_STREAM_OK;
 }
 
 enum StreamResult seekRelativeThroughReserve(struct Stream *s, int offset)
@@ -174,6 +175,7 @@ enum StreamResult seekRelativeThroughReserve(struct Stream *s, int offset)
     return EOT_SEEK_PAST_EOS;
   }
   s->pos = (unsigned)newPos;
+  return EOT_STREAM_OK;
 }
 
 enum StreamResult seekAbsolute(struct Stream *s, unsigned pos)
@@ -187,6 +189,7 @@ enum StreamResult seekAbsolute(struct Stream *s, unsigned pos)
     return EOT_SEEK_PAST_EOS;
   }
   s->pos = pos;
+  return EOT_STREAM_OK;
 }
 
 enum StreamResult reserve(struct Stream *s, unsigned toReserve)

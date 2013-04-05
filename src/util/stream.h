@@ -43,6 +43,8 @@ enum StreamResult BEReadS16(struct Stream *s, int16_t *out);
 enum StreamResult BEReadS24(struct Stream *s, int32_t *out);
 enum StreamResult BEReadS32(struct Stream *s, int32_t *out);
 
+enum StreamResult BEReadChar(struct Stream *s, char *out);
+
 enum StreamResult BEPeekU8(struct Stream *s, uint8_t *out);
 
 enum StreamResult seekRelative(struct Stream *s, int offset);

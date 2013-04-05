@@ -67,6 +67,10 @@ enum StreamResult BEReadU8(struct Stream *s, uint8_t *out)
   return EOT_STREAM_OK;
 }
 
+enum StreamResult BEReadChar(struct Stream *s, char *out)
+{
+  return BEReadU8(s, (uint8_t *)out);
+}
 
 enum StreamResult BEReadU16(struct Stream *s, uint16_t *out)
 {

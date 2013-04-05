@@ -666,7 +666,7 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     char tag[4];
     for (unsigned j = 0; j < 4; ++j)
     {
-      RD2(BEReadU8, streams[0], tag + j, sResult);
+      RD2(BEReadChar, streams[0], tag + j, sResult);
     }
     struct SFNTTable *tbl;
     result = addTable(*out, tag, &tbl);

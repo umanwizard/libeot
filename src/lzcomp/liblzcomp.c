@@ -70,7 +70,7 @@ enum EOTError unpackMtx(struct Stream *buf, unsigned size, char **bufsOut, unsig
 		}
 	}
 CLEANUP:
-	;
+	return returnedStatus;
 	/* FIXME */
 }
 /*

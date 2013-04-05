@@ -201,7 +201,11 @@ enum StreamResult _dpi_put(int16_t value, struct Stream *out, enum _dpi_TypeRead
   enum _dpi_TypeRead newType = (value >= 0 && value < 256) ? BYTE : SHORT;
   if (newType != *lastRead || *typeLastReadCount == 255)
   {
-    _dpi_dump(out, lastRead, typeLastReadCount, data, dataIndex);
+    sResult = _dpi_dump(out, lastRead, typeLastReadCount, data, dataIndex);
+    if (sResult != EOT_STREAM_OK)
+    {
+      return sResult;
+    }
     *lastRead = newType;
     *typeLastReadCount = 0;
   }

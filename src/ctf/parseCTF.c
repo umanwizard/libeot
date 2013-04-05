@@ -356,24 +356,26 @@ uint8_t _dsg_makeFlags(int16_t x, int16_t y, bool onCurve, bool firstTime)
   return ret;
 }
 enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, struct Stream *out,
-    bool calculateBoundingBox, int16_t *xMin, int16_t *yMin, int16_t *xMax, int16_t *yMax)
+    bool calculateBoundingBox, int16_t minX, int16_t minY, int16_t maxX, int16_t maxY)
 {
   struct Stream *in = streams[0];
   enum StreamResult sResult;
   enum EOTError returnedStatus = EOT_SUCCESS;
+  unsigned boundingBoxLocation;
   RD2(BEWriteS16, out, numContours, sResult);
   if (calculateBoundingBox)
   {
     boundingBoxLocation = out->pos;
     sResult = seekRelative(out, 4 * sizeof(int16_t));
     CHK_RD2(sResult);
+    minX = INT16_MAX, minY = INT16_MAX, maxX = INT16_MIN, maxY = INT16_MIN;
   }
   else
   {
-    RD2(BEWriteS16, out, *xMin, sResult);
-    RD2(BEWriteS16, out, *yMin, sResult);
-    RD2(BEWriteS16, out, *xMax, sResult);
-    RD2(BEWriteS16, out, *yMax, sResult);
+    RD2(BEWriteS16, out, minX, sResult);
+    RD2(BEWriteS16, out, minY, sResult);
+    RD2(BEWriteS16, out, maxX, sResult);
+    RD2(BEWriteS16, out, maxY, sResult);
   }
   unsigned totalPoints = 0;
   for (unsigned i = 0; i < (unsigned)numContours; ++i)
@@ -383,7 +385,6 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
     totalPoints += pointsInContour;
     RD2(BEWriteS16, out, totalPoints, sResult);
   }
-  enum EOTError returnedStatus = EOT_SUCCESS;
   uint8_t *flags = NULL; 
   int16_t *xCoords = NULL, *yCoords = NULL;
   flags = (uint8_t *)malloc(totalPoints * sizeof(uint8_t));
@@ -425,6 +426,10 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
     CHK_CN(sResult, EOT_LOGIC_ERROR);
     xCoords[i] = enc.xSign * (dx + enc.deltaX);
     yCoords[i] = enc.ySign * (dy + enc.deltaY);
+    minX = i16min(minX, xCoords[i]);
+    maxX = i16max(minY, xCoords[i]);
+    minY = i16min(maxX, yCoords[i]);
+    maxY = i16max(maxY, yCoords[i]);
   }
   /* Coordinates are known now, but we need to handle instructions before they can be output. */
   /* advance past the code size output */
@@ -507,6 +512,17 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
   CHK_RD2(sResult);
   RD2(BEWriteU16, out, (uint16_t)unpackedCodeSize, sResult);
   CHK_RD2(sResult);
+  if (calculateBoundingBox)
+  {
+    unsigned endPos = out->pos;
+    sResult = seekAbsolute(out, boundingBoxLocation);
+    CHK_RD2(sResult);
+    RD2(BEWriteS16, out, minX, sResult);
+    RD2(BEWriteS16, out, minY, sResult);
+    RD2(BEWriteS16, out, maxX, sResult);
+    RD2(BEWriteS16, out, maxY, sResult);
+    sResult = seekAbsolute(out, endPos);
+  }
   returnedStatus = EOT_SUCCESS;
 CLEANUP:
   free(flags);
@@ -542,7 +558,7 @@ enum StreamResult decodeGlyph(struct Stream **streams, struct Stream *out)
       /* otherwise, calculate bounding box info ourselves. */
       calculateBoundingBox = true;
     }
-    sResult = decodeSimpleGlyph(numContours, streams, out, calculateBoundingBox, &xMin, &yMin, &xMax, &yMax);
+    sResult = decodeSimpleGlyph(numContours, streams, out, calculateBoundingBox, xMin, yMin, xMax, yMax);
     CHK_RD(sResult);
   }
   return EOT_STREAM_OK;

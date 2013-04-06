@@ -526,7 +526,7 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
     }
   }
   unsigned currPos = out->pos;
-  sResult = seekAbsolute(out, codeSizeLocation);
+  sResult = seekAbsoluteThroughReserve(out, codeSizeLocation);
   CHK_RD2(sResult);
   RD2(BEWriteU16, out, (uint16_t)unpackedCodeSize, sResult);
   CHK_RD2(sResult);
@@ -535,13 +535,13 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
   if (calculateBoundingBox)
   {
     unsigned endPos = out->pos;
-    sResult = seekAbsolute(out, boundingBoxLocation);
+    sResult = seekAbsoluteThroughReserve(out, boundingBoxLocation);
     CHK_RD2(sResult);
     RD2(BEWriteS16, out, minX, sResult);
     RD2(BEWriteS16, out, minY, sResult);
     RD2(BEWriteS16, out, maxX, sResult);
     RD2(BEWriteS16, out, maxY, sResult);
-    sResult = seekAbsolute(out, endPos);
+    sResult = seekAbsoluteThroughReserve(out, endPos);
   }
   returnedStatus = EOT_SUCCESS;
 CLEANUP:

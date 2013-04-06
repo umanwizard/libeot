@@ -214,7 +214,7 @@ enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf, unsigne
   *outBuf = s.buf;
   *outSize = s.size;
 CLEANUP:
-  free(s.buf);
+  /* lmao */
   return returnedStatus;
 }
 

@@ -18,7 +18,7 @@
 
 void usage(char *progName)
 {
-  fprintf(stderr, "Usage: %s myfont.eot\n", progName);
+  fprintf(stderr, "Usage: %s myfont.eot out.ttf\n", progName);
 }
 
 void printError(enum EOTError error, const char *filename)
@@ -52,7 +52,7 @@ void printError(enum EOTError error, const char *filename)
 
 int main(int argc, char **argv)
 {
-  if (argc != 2)
+  if (argc != 3)
   {
     usage(argv[0]);
     return 1;
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     return 1;
   }
   //FIXME
-  const char *outFileName = "out";
+  const char *outFileName = argv[2];
   FILE *outFile = fopen(outFileName, "wb");
   if (outFile == NULL)
   {

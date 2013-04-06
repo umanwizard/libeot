@@ -364,6 +364,10 @@ uint8_t _dsg_makeFlags(int16_t x, int16_t y, bool onCurve, bool firstTime)
 enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, struct Stream *out,
     bool calculateBoundingBox, int16_t minX, int16_t minY, int16_t maxX, int16_t maxY)
 {
+  if (numContours == 0)
+  {
+    return EOT_SUCCESS;
+  }
   struct Stream *in = streams[0];
   enum StreamResult sResult;
   enum EOTError returnedStatus = EOT_SUCCESS;
@@ -449,76 +453,70 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
   unsigned codeSizeLocation = out->pos;
   sResult = seekRelativeThroughReserve(out, sizeof(uint16_t));
   CHK_CN(sResult, EOT_CORRUPT_FILE);
-  if (numContours > 0)
+  /* decode the push instructions for the glyph */
+  uint16_t pushCount;
+  sResult = read255UShort(in, &pushCount);
+  CHK_CN(sResult, EOT_CORRUPT_FILE);
+  enum EOTError result = decodePushInstructions(streams[1], out, pushCount);
+  if (result != EOT_SUCCESS && result < EOT_WARN)
   {
-    /* decode the push instructions for the glyph */
-    uint16_t pushCount;
-    sResult = read255UShort(in, &pushCount);
-    CHK_CN(sResult, EOT_CORRUPT_FILE);
-    enum EOTError result = decodePushInstructions(streams[1], out, pushCount);
-    if (result != EOT_SUCCESS && result < EOT_WARN)
-    {
-      returnedStatus = result;
-      goto CLEANUP;
-    }
-    /* copy over the rest of the instructions for the glyph */
-    uint16_t codeSize;
-    sResult = read255UShort(in, &codeSize);
-    CHK_CN(sResult, EOT_CORRUPT_FILE);
-    sResult = streamCopy(streams[2], out, codeSize);
-    CHK_CN(sResult, EOT_CORRUPT_FILE);
+    returnedStatus = result;
+    goto CLEANUP;
   }
+  /* copy over the rest of the instructions for the glyph */
+  uint16_t codeSize;
+  sResult = read255UShort(in, &codeSize);
+  CHK_CN(sResult, EOT_CORRUPT_FILE);
+  sResult = streamCopy(streams[2], out, codeSize);
+  CHK_CN(sResult, EOT_CORRUPT_FILE);
   /* the below will be zero if we didn't go through the if (numContours > 0) block. */
   unsigned unpackedCodeSize = out->pos - (codeSizeLocation + sizeof(uint16_t));
-  if (totalPoints > 0)
+  /* FIXME: Figure out if there is a huge savings from using the 'repeat' flag and if so, use it.
+   * (but I kinda doubt there is.) */
+  for (unsigned i = 0; i < totalPoints; ++i)
   {
-    /* FIXME: Figure out if there is a huge savings from using the 'repeat' flag and if so, use it.
-     * (but I kinda doubt there is.) */
-    for (unsigned i = 0; i < totalPoints; ++i)
+    uint8_t outFlags = _dsg_makeFlags(xCoords[i], yCoords[i], !(flags[i] & 0x80), i == 0);
+    sResult = BEWriteU8(out, outFlags);
+    CHK_CN(sResult, EOT_UNKNOWN_BUFFER_WRITE_ERROR);
+  }
+  for (unsigned i = 0; i < totalPoints; ++i)
+  {
+    int16_t x = xCoords[i];
+    if (i == 0 || x != 0)
     {
-      uint8_t outFlags = _dsg_makeFlags(xCoords[i], yCoords[i], !(flags[i] & 0x80), i == 0);
-      sResult = BEWriteU8(out, outFlags);
+      if (-256 < x && x < 0)
+      {
+        x *= -1;
+      }
+      if (0 <= x && x < 256)
+      {
+        sResult = BEWriteU8(out, (uint8_t)x);
+      }
+      else
+      {
+        sResult = BEWriteS16(out, x);
+      }
       CHK_CN(sResult, EOT_UNKNOWN_BUFFER_WRITE_ERROR);
     }
-    for (unsigned i = 0; i < totalPoints; ++i)
+  }
+  for (unsigned i = 0; i < totalPoints; ++i)
+  {
+    int16_t y = yCoords[i];
+    if (i == 0 || y != 0)
     {
-      int16_t x = xCoords[i];
-      if (i == 0 || x != 0)
+      if (-256 < y && y < 0)
       {
-        if (-256 < x && x < 0)
-        {
-          x *= -1;
-        }
-        if (0 <= x && x < 256)
-        {
-          sResult = BEWriteU8(out, (uint8_t)x);
-        }
-        else
-        {
-          sResult = BEWriteS16(out, x);
-        }
-        CHK_CN(sResult, EOT_UNKNOWN_BUFFER_WRITE_ERROR);
+        y *= -1;
       }
-    }
-    for (unsigned i = 0; i < totalPoints; ++i)
-    {
-      int16_t y = yCoords[i];
-      if (i == 0 || y != 0)
+      if (0 <= y && y < 256)
       {
-        if (-256 < y && y < 0)
-        {
-          y *= -1;
-        }
-        if (0 <= y && y < 256)
-        {
-          sResult = BEWriteU8(out, (uint8_t)y);
-        }
-        else
-        {
-          sResult = BEWriteS16(out, y);
-        }
-        CHK_CN(sResult, EOT_UNKNOWN_BUFFER_WRITE_ERROR);
+        sResult = BEWriteU8(out, (uint8_t)y);
       }
+      else
+      {
+        sResult = BEWriteS16(out, y);
+      }
+      CHK_CN(sResult, EOT_UNKNOWN_BUFFER_WRITE_ERROR);
     }
   }
   unsigned currPos = out->pos;
@@ -560,6 +558,8 @@ enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
   struct Stream *in = streams[0];
   int16_t minX, minY, maxX, maxY;
   enum StreamResult sResult;
+  RD2(BEWriteS16, out, -1, sResult);
+
   RD2(BEReadS16, in, &minX, sResult);
   RD2(BEReadS16, in, &minY, sResult);
   RD2(BEReadS16, in, &maxX, sResult);

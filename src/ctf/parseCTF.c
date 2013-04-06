@@ -175,7 +175,7 @@ enum StreamResult _dpi_dump(struct Stream *out, enum _dpi_TypeRead *lastRead, un
     /* write stuff out */
     if (*typeLastReadCount < 8)
     {
-      uint8_t op = ((*lastRead == BYTE) ? PUSHB : PUSHW) | (uint8_t)*typeLastReadCount;
+      uint8_t op = ((*lastRead == BYTE) ? PUSHB : PUSHW) | (uint8_t)(*typeLastReadCount - 1);
       sResult = BEWriteU8(out, op);
       CHK_RD(sResult);
     }

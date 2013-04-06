@@ -322,13 +322,12 @@ uint8_t _dsg_makeFlags(int16_t x, int16_t y, bool onCurve, bool firstTime)
   const uint8_t FLG_Y_SHORT  = 0x04;
   const uint8_t FLG_X_SAME   = 0x10;
   const uint8_t FLG_Y_SAME   = 0x20;
-  static int16_t lastX, lastY;
   uint8_t ret = 0;
   if (onCurve)
   {
     ret |= FLG_ON_CURVE;
   }
-  if (!firstTime && (x == lastX))
+  if (!firstTime && (x == 0))
   {
     ret |= FLG_X_SAME;
   }
@@ -344,7 +343,7 @@ uint8_t _dsg_makeFlags(int16_t x, int16_t y, bool onCurve, bool firstTime)
       ret |= FLG_X_SAME; /* here means that X is positive. */
     }
   }
-  if (!firstTime && (y == lastY))
+  if (!firstTime && (y == 0))
   {
     ret |= FLG_Y_SAME;
   }
@@ -360,8 +359,6 @@ uint8_t _dsg_makeFlags(int16_t x, int16_t y, bool onCurve, bool firstTime)
       ret |= FLG_Y_SAME; /* here means that Y is positive. */
     }
   }
-  lastX = x;
-  lastY = y;
   return ret;
 }
 enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, struct Stream *out,
@@ -483,11 +480,10 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
       sResult = BEWriteU8(out, outFlags);
       CHK_CN(sResult, EOT_UNKNOWN_BUFFER_WRITE_ERROR);
     }
-    int16_t lastX = 0;
     for (unsigned i = 0; i < totalPoints; ++i)
     {
       int16_t x = xCoords[i];
-      if (i == 0 || lastX != x)
+      if (i == 0 || x != 0)
       {
         if (-256 < x && x < 0)
         {
@@ -503,13 +499,11 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
         }
         CHK_CN(sResult, EOT_UNKNOWN_BUFFER_WRITE_ERROR);
       }
-      lastX = x;
     }
-    int16_t lastY = 0;
     for (unsigned i = 0; i < totalPoints; ++i)
     {
       int16_t y = yCoords[i];
-      if (i == 0 || lastY != y)
+      if (i == 0 || y != 0)
       {
         if (-256 < y && y < 0)
         {
@@ -525,7 +519,6 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
         }
         CHK_CN(sResult, EOT_UNKNOWN_BUFFER_WRITE_ERROR);
       }
-      lastY = y;
     }
   }
   unsigned currPos = out->pos;

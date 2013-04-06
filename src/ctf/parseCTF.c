@@ -415,6 +415,7 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
     sResult = BEReadU8(in, &flags[i]);
     CHK_CN(sResult, EOT_CANT_ALLOCATE_MEMORY);
   }
+  unsigned currX = 0, currY = 0;
   for (unsigned i = 0; i < totalPoints; ++i)
   {
     struct TripletEncoding enc = tripletEncodings[flags[i] & 0x7F];
@@ -438,11 +439,13 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
     sResult = seekRelative(in, coords.size);
     CHK_CN(sResult, EOT_LOGIC_ERROR);
     xCoords[i] = enc.xSign * (dx + enc.deltaX);
+    currX += xCoords[i];
     yCoords[i] = enc.ySign * (dy + enc.deltaY);
-    minX = i16min(minX, xCoords[i]);
-    maxX = i16max(minY, xCoords[i]);
-    minY = i16min(maxX, yCoords[i]);
-    maxY = i16max(maxY, yCoords[i]);
+    currY += yCoords[i];
+    minX = i16min(minX, currX);
+    maxX = i16max(maxX, currX);
+    minY = i16min(minY, currY);
+    maxY = i16max(maxY, currY);
   }
   /* Coordinates are known now, but we need to handle instructions before they can be output. */
   /* advance past the code size output */

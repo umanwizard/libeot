@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "stream.h"
 
 enum StreamResult BEReadRestAsU32(struct Stream *s, uint32_t *out)
@@ -196,6 +197,20 @@ enum StreamResult seekAbsolute(struct Stream *s, unsigned pos)
   return EOT_STREAM_OK;
 }
 
+enum StreamResult seekAbsoluteThroughReserve(struct Stream *s, unsigned pos)
+{
+  if (s->bitPos != 0)
+  {
+    return EOT_OFF_BYTE_BOUNDARY;
+  }
+  if (pos > s->reserved)
+  {
+    return EOT_SEEK_PAST_EOS;
+  }
+  s->pos = pos;
+  return EOT_STREAM_OK;
+}
+
 enum StreamResult reserve(struct Stream *s, unsigned toReserve)
 {
   if (s->reserved >= toReserve)
@@ -208,9 +223,10 @@ enum StreamResult reserve(struct Stream *s, unsigned toReserve)
     return EOT_CANT_ALLOCATE_MEMORY_FOR_STREAM;
   }
   s->buf = newBuf;
+  s->reserved = toReserve;
   return EOT_STREAM_OK;
 }
-#define CHK_RES(s, n) if (s->pos + n >= s->reserved) return EOT_OUT_OF_RESERVED_SPACE
+#define CHK_RES(s, n) if (s->pos + n > s->reserved) return EOT_OUT_OF_RESERVED_SPACE
 #define FIX_SIZE(s) if (s->pos > s->size) s->size = s->pos
 enum StreamResult BEWriteU8(struct Stream *s, uint8_t in)
 {
@@ -306,7 +322,8 @@ enum StreamResult readNBits(struct Stream *s, uint32_t *out, unsigned n)
     {
       return EOT_NOT_ENOUGH_DATA;
     }
-    *out |= ((s->buf[s->pos] & masks[s->bitPos]) << i);
+    bool bitSet = (s->buf[s->pos] & masks[s->bitPos]) > 0;
+    *out |= ( bitSet ? 1 : 0 ) << (n - i - 1);
     ++s->bitPos;
     if (s->bitPos == 8)
     {

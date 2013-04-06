@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "../EOTError.h"
 #include "../util/stream.h"
@@ -62,13 +63,20 @@ enum StreamResult _writeTblCheckingSum(struct SFNTTable *tbl, struct Stream *out
   struct Stream tblStream = constructStream(tbl->buf, tbl->bufSize);
   enum StreamResult sResult = EOT_STREAM_OK;
   enum StreamResult sResult2;
-  while (sResult == EOT_STREAM_OK)
+  while (true)
   {
     uint32_t chunk;
     sResult = BEReadRestAsU32(&tblStream, &chunk);
-    tbl->checksum += chunk;
-    sResult2 = BEWriteU32(out, chunk);
-    CHK_RD(sResult2);
+    if (sResult == EOT_STREAM_OK)
+    {
+      tbl->checksum += chunk;
+      sResult2 = BEWriteU32(out, chunk);
+      CHK_RD(sResult2);
+    }
+    else
+    {
+      break;
+    }
   }
   if (sResult == EOT_NOT_ENOUGH_DATA)
   {
@@ -85,7 +93,7 @@ enum StreamResult _writeTableDirectory(struct SFNTContainer *ctr, struct Stream 
     struct SFNTTable *tbl = &ctr->tables[i];
     for (unsigned iTag = 0; iTag < 4; ++iTag)
     {
-      RD(BEWriteU8, out, (char)(tbl->buf[i]), sResult);
+      RD(BEWriteU8, out, (char)(tbl->tag[iTag]), sResult);
     }
     RD(BEWriteU32, out, tbl->checksum, sResult);
     RD(BEWriteU32, out, tbl->offset, sResult);
@@ -153,7 +161,7 @@ unsigned _getRequiredSize(struct SFNTContainer *ctr)
 
 
 
-enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf)
+enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf, unsigned *outSize)
 {
   struct Stream s = constructStream(NULL, 0);
   unsigned requiredSize = _getRequiredSize(ctr);
@@ -203,6 +211,8 @@ enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf)
   sResult = BEWriteU32(&sChkOut, finalChecksum);
   CHK_CN(sResult, EOT_LOGIC_ERROR);
   returnedStatus = EOT_SUCCESS;
+  *outBuf = s.buf;
+  *outSize = s.size;
 CLEANUP:
   free(s.buf);
   return returnedStatus;

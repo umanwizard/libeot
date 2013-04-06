@@ -32,6 +32,7 @@ enum StreamResult parseOffsetTable(struct Stream *s, struct SFNTOffsetTable *tbl
   RD(BEReadU32, s, &tbl->scalarType, res);
   RD(BEReadU16, s, &tbl->numTables, res);
   RD(BEReadU16, s, &tbl->searchRange, res);
+  RD(BEReadU16, s, &tbl->entrySelector, res);
   RD(BEReadU16, s, &tbl->rangeShift, res);
   return EOT_STREAM_OK;
 }
@@ -91,6 +92,8 @@ enum EOTError unpackCVT(struct SFNTTable *out, struct Stream *sIn)
       return EOT_LOGIC_ERROR;
     }
   }
+  out->buf = sOut.buf;
+  out->bufSize = sOut.size;
   return EOT_SUCCESS;
 }
 
@@ -372,7 +375,7 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
   if (calculateBoundingBox)
   {
     boundingBoxLocation = out->pos;
-    sResult = seekRelative(out, 4 * sizeof(int16_t));
+    sResult = seekRelativeThroughReserve(out, 4 * sizeof(int16_t));
     CHK_RD2(sResult);
     minX = INT16_MAX, minY = INT16_MAX, maxX = INT16_MIN, maxY = INT16_MIN;
   }
@@ -386,10 +389,14 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
   unsigned totalPoints = 0;
   for (unsigned i = 0; i < (unsigned)numContours; ++i)
   {
+    if (i == 0) 
+    {
+      totalPoints = 1;
+    }
     uint16_t pointsInContour;
     RD2(read255UShort, in, &pointsInContour, sResult);
     totalPoints += pointsInContour;
-    RD2(BEWriteS16, out, totalPoints, sResult);
+    RD2(BEWriteS16, out, totalPoints - 1, sResult);
   }
   uint8_t *flags = NULL; 
   int16_t *xCoords = NULL, *yCoords = NULL;
@@ -440,24 +447,28 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
   /* Coordinates are known now, but we need to handle instructions before they can be output. */
   /* advance past the code size output */
   unsigned codeSizeLocation = out->pos;
-  sResult = seekRelative(out, sizeof(uint16_t));
+  sResult = seekRelativeThroughReserve(out, sizeof(uint16_t));
   CHK_CN(sResult, EOT_CORRUPT_FILE);
-  /* decode the push instructions for the glyph */
-  uint16_t pushCount;
-  sResult = BEReadU16(in, &pushCount);
-  CHK_CN(sResult, EOT_CORRUPT_FILE);
-  enum EOTError result = decodePushInstructions(streams[1], out, pushCount);
-  if (result != EOT_SUCCESS && result < EOT_WARN)
+  if (numContours > 0)
   {
-    returnedStatus = result;
-    goto CLEANUP;
+    /* decode the push instructions for the glyph */
+    uint16_t pushCount;
+    sResult = read255UShort(in, &pushCount);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
+    enum EOTError result = decodePushInstructions(streams[1], out, pushCount);
+    if (result != EOT_SUCCESS && result < EOT_WARN)
+    {
+      returnedStatus = result;
+      goto CLEANUP;
+    }
+    /* copy over the rest of the instructions for the glyph */
+    uint16_t codeSize;
+    sResult = read255UShort(in, &codeSize);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
+    sResult = streamCopy(streams[2], out, codeSize);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
   }
-  /* copy over the rest of the instructions for the glyph */
-  uint16_t codeSize;
-  sResult = BEReadU16(in, &codeSize);
-  CHK_CN(sResult, EOT_CORRUPT_FILE);
-  sResult = streamCopy(streams[2], out, codeSize);
-  CHK_CN(sResult, EOT_CORRUPT_FILE);
+  /* the below will be zero if we didn't go through the if (numContours > 0) block. */
   unsigned unpackedCodeSize = out->pos - (codeSizeLocation + sizeof(uint16_t));
   if (totalPoints > 0)
   {
@@ -514,9 +525,12 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams, st
       lastY = y;
     }
   }
+  unsigned currPos = out->pos;
   sResult = seekAbsolute(out, codeSizeLocation);
   CHK_RD2(sResult);
   RD2(BEWriteU16, out, (uint16_t)unpackedCodeSize, sResult);
+  CHK_RD2(sResult);
+  sResult = seekAbsoluteThroughReserve(out, currPos);
   CHK_RD2(sResult);
   if (calculateBoundingBox)
   {
@@ -537,16 +551,89 @@ CLEANUP:
   return returnedStatus;
 }
 
-enum StreamResult decodeGlyph(struct Stream **streams, struct Stream *out)
+enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
+{
+  const uint16_t FLG_ARGS_WORDS = 0x1,
+        FLG_HAVE_SCALE = 0x8,
+        FLG_MORE_COMPONENTS = 0x20,
+        FLG_HAVE_XY_SCALE = 0x40,
+        FLG_HAVE_2_BY_2 = 0x80,
+        FLG_HAVE_INSTR = 0x100;
+  /* we don't need to interpret very much here, just the flags to know how much
+   * to pass along into the output. */
+  struct Stream *in = streams[0];
+  int16_t minX, minY, maxX, maxY;
+  enum StreamResult sResult;
+  RD2(BEReadS16, in, &minX, sResult);
+  RD2(BEReadS16, in, &minY, sResult);
+  RD2(BEReadS16, in, &maxX, sResult);
+  RD2(BEReadS16, in, &maxY, sResult);
+  RD2(BEWriteS16, out, minX, sResult);
+  RD2(BEWriteS16, out, minY, sResult);
+  RD2(BEWriteS16, out, maxX, sResult);
+  RD2(BEWriteS16, out, maxY, sResult);
+  uint16_t flags;
+  do
+  {
+    RD2(BEReadU16, in, &flags, sResult);
+    RD2(BEWriteU16, out, flags, sResult);
+    /* for glyph index */
+    sResult = streamCopy(in, out, 2);
+    CHK_RD2(sResult);
+    unsigned argsLength = (flags & FLG_ARGS_WORDS) ? 4 : 2;
+    sResult = streamCopy(in, out, argsLength);
+    CHK_RD2(sResult);
+    unsigned transformBytes = 0;
+    if (flags & FLG_HAVE_2_BY_2)
+    {
+      transformBytes = 8;
+    }
+    else if (flags & FLG_HAVE_XY_SCALE)
+    {
+      transformBytes = 4;
+    }
+    else if (flags & FLG_HAVE_SCALE)
+    {
+      transformBytes = 2;
+    }
+    sResult = streamCopy(in, out, transformBytes);
+    CHK_RD2(sResult);
+  } while (flags & FLG_MORE_COMPONENTS);
+  if (flags & FLG_HAVE_INSTR)
+  {
+    /* decode the push instructions for the glyph */
+    uint16_t pushCount;
+    sResult = read255UShort(in, &pushCount);
+    CHK_RD2(sResult);
+    enum EOTError result = decodePushInstructions(streams[1], out, pushCount);
+    if (result != EOT_SUCCESS && result < EOT_WARN)
+    {
+      return result;
+    }
+    /* copy over the rest of the instructions for the glyph */
+    uint16_t codeSize;
+    sResult = read255UShort(in, &codeSize);
+    CHK_RD2(sResult);
+    sResult = streamCopy(streams[2], out, codeSize);
+    CHK_RD2(sResult);
+  }
+  return EOT_SUCCESS;
+}
+
+enum EOTError decodeGlyph(struct Stream **streams, struct Stream *out)
 {
   struct Stream *in = streams[0];
   int16_t numContours, xMin, yMin, xMax, yMax;
   bool calculateBoundingBox = false;
   enum StreamResult sResult;
-  RD(BEReadS16, in, &numContours, sResult);
+  RD2(BEReadS16, in, &numContours, sResult);
   if (numContours < 0)
   {
-    /* FIXME: decode composite glyph */
+    enum EOTError result = decodeCompositeGlyph(streams, out);
+    if (result != EOT_SUCCESS && result < EOT_WARN)
+    {
+      return result;
+    }
   }
   else
   {
@@ -564,10 +651,13 @@ enum StreamResult decodeGlyph(struct Stream **streams, struct Stream *out)
       /* otherwise, calculate bounding box info ourselves. */
       calculateBoundingBox = true;
     }
-    sResult = decodeSimpleGlyph(numContours, streams, out, calculateBoundingBox, xMin, yMin, xMax, yMax);
-    CHK_RD(sResult);
+    enum EOTError result = decodeSimpleGlyph(numContours, streams, out, calculateBoundingBox, xMin, yMin, xMax, yMax);
+    if (result != EOT_SUCCESS && result < EOT_WARN)
+    {
+      return result;
+    }
   }
-  return EOT_STREAM_OK;
+  return EOT_SUCCESS;
 }
 
 /* https://developer.apple.com/fonts/TTRefMan/RM06/Chap6glyf.html
@@ -605,8 +695,13 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf, struct SFNTTable *loca
   for (unsigned i = 0; i < maxpData->numGlyphs; ++i)
   {
     //decode a glyph outline
-    sResult = decodeGlyph(streams, &sOut);
-    switch (sResult)
+    enum EOTError result = decodeGlyph(streams, &sOut);
+    if (result != EOT_SUCCESS)
+    {
+      return result;
+    }
+    //MEGA FIXME: Still do this !!!!!
+    /* switch (sResult)
     {
       case EOT_STREAM_OK:
         break;
@@ -614,14 +709,14 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf, struct SFNTTable *loca
         overranAllocatedSpace = true;
         sResult = reserve(&sOut, sOut.reserved * 2);
         if (sResult != EOT_STREAM_OK) return EOT_CANT_ALLOCATE_MEMORY;
-        --i; /* try again */
+        --i; // try again
         continue;
       case EOT_NOT_ENOUGH_DATA:
         notEnoughGlyphs = true;
         break;
       default:
         return EOT_CORRUPT_FILE;
-    }
+    } */
     /* do padding */
     if (sOut.pos % 2)
     {

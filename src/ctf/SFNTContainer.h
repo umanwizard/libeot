@@ -32,7 +32,7 @@ enum EOTError reserveTables(struct SFNTContainer *ctr, unsigned num);
 void freeContainer(struct SFNTContainer *ctr);
 enum EOTError addTable(struct SFNTContainer *ctr, const char *tag, struct SFNTTable **newTableOut);
 enum EOTError loadTableFromStream(struct SFNTTable *tbl, struct Stream *s);
-enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf);
+enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf, unsigned *outSize);
 
 #endif /* #define __LIBEOT_SFNT_CONTAINER_H__ */
 

@@ -29,9 +29,10 @@ enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, b
     }
   }
   uint8_t *finalBuf;
-  long finalFontSize;
+  unsigned finalFontSize;
   if (compressed)
   {
+#ifndef DONT_UNCOMPRESS
     uint8_t *ctfs[3];
     unsigned sizes[3];
     struct Stream sBuf = constructStream(buf, fontSize);
@@ -52,19 +53,23 @@ enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, b
     {
       return result;
     }
-    result = dumpContainer(ctr, &finalBuf);
+    result = dumpContainer(ctr, &finalBuf, &finalFontSize);
     if (result != EOT_SUCCESS)
     {
       return result;
     }
     /* FIXME MEMORY */
+#else
+    finalBuf = buf;
+    finalFontSize = fontSize;
+#endif
   }
   else
   {
     finalBuf = buf;
     finalFontSize = fontSize;
   }
-  fwrite(finalBuf, 1, finalFontSize, outFile);
+  fwrite(finalBuf, 1, (long)finalFontSize, outFile);
   if (finalBuf != buf)
   {
     free(finalBuf);

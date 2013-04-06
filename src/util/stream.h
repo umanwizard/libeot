@@ -51,6 +51,7 @@ enum StreamResult seekRelative(struct Stream *s, int offset);
 enum StreamResult seekAbsolute(struct Stream *s, unsigned pos);
 
 enum StreamResult seekRelativeThroughReserve(struct Stream *s, int offset);
+enum StreamResult seekAbsoluteThroughReserve(struct Stream *s, unsigned pos);
 
 enum StreamResult reserve(struct Stream *s, unsigned toReserve);
 

@@ -9,12 +9,6 @@
 #include "../util/stream.h"
 #include "../EOTError.h"
 
-/*
-void usage(char *arg)
-{
-	fprintf(stderr, "Usage: %s font.mtx font.ctf\n", arg);
-}
-*/
 unsigned be24ToCpu(const uint8_t *buf)
 {
 	return ((unsigned)buf[2]) | (((unsigned)buf[1]) << 8) | (((unsigned)buf[0]) << 16);
@@ -71,7 +65,11 @@ CLEANUP:
 	return returnedStatus;
 	/* FIXME */
 }
-/*
+#ifdef LZCOMP_MAIN
+void usage(char *arg)
+{
+	fprintf(stderr, "Usage: %s font.mtx font.ctf\n", arg);
+}
 int main(int argc, char **argv)
 {
 	if (argc != 3)
@@ -124,4 +122,5 @@ int main(int argc, char **argv)
 		free(buf);
 		free(outBuf);
 	}
-}*/
+}
+#endif

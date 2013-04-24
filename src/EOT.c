@@ -138,10 +138,8 @@ void EOTfreeMetadata(struct EOTMetadata *d)
 #define EOT_ENSURE_STRING_NOERR(E) {enum EOTError macro_defined_var_E = E; if(macro_defined_var_E != EOT_SUCCESS) { EOTfreeMetadata(out); return macro_defined_var_E; }}
 
 enum EOTError EOTfillMetadataSpecifyingVersion(const uint8_t *bytes, unsigned bytesLength,
-    struct EOTMetadata *out, enum EOTVersion version)
+    struct EOTMetadata *out, enum EOTVersion version, int currIndex)
 {
-  struct EOTMetadata zero = {0};
-  *out = zero;
   out->version = version;
   const uint8_t *scanner = bytes;
   EOT_ENSURE_SCANNER(4);
@@ -224,7 +222,7 @@ enum EOTError EOTfillMetadataSpecifyingVersion(const uint8_t *bytes, unsigned by
       }
     }
   }
-  out->fontDataOffset = scanner - bytes;
+  out->fontDataOffset = scanner - bytes + currIndex;
   int expectedHeaderSize = (int)(out->totalSize) - (int)(out->fontDataSize);
   if (out->fontDataOffset < expectedHeaderSize)
   {
@@ -236,6 +234,8 @@ enum EOTError EOTfillMetadataSpecifyingVersion(const uint8_t *bytes, unsigned by
 enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
     struct EOTMetadata *out)
 {
+  struct EOTMetadata zero = {0};
+  *out = zero;
   const uint8_t *scanner = bytes;
   if (bytesLength < 8 || bytesLength < EOTgetMetadataLength(bytes))
   {
@@ -269,7 +269,7 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
   bool bumpedUp = false, knockedDown = false;
   while (true)
   {
-    enum EOTError result = EOTfillMetadataSpecifyingVersion(scanner, bytesLength - (scanner - bytes), out, tryVersion);
+    enum EOTError result = EOTfillMetadataSpecifyingVersion(scanner, bytesLength - (scanner - bytes), out, tryVersion, scanner - bytes);
     if (result == EOT_SUCCESS)
     {
       return tryVersion == codedVersion ? EOT_SUCCESS : EOT_WARN_BAD_VERSION;

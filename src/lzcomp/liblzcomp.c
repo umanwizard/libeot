@@ -67,8 +67,8 @@ enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut, un
 		}
 	}
 CLEANUP:
+	MTX_LZCOMP_Destroy(lzcomp);
 	free(mem);
-	free(lzcomp);
 	return returnedStatus;
 }
 #ifdef LZCOMP_MAIN

@@ -228,7 +228,7 @@ enum EOTError decodePushInstructions(struct Stream *sIn, struct Stream *sOut, un
 {
   enum StreamResult sResult;
   unsigned remaining = pushCount;
-  enum _dpi_TypeRead typeLastRead;
+  enum _dpi_TypeRead typeLastRead = BYTE; /* doesn't actually matter what this is initialized to since it will just get reset with no effect if the first thing is a short */
   unsigned typeLastReadCount = 0;
   unsigned dataIndex = 0;
   int16_t *data = (int16_t *)malloc(sizeof(int16_t) * pushCount);

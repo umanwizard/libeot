@@ -91,6 +91,7 @@ struct EOTMetadata
 unsigned EOTgetMetadataLength(uint8_t *bytes);
 enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
     struct EOTMetadata *out);
+void EOTfreeMetadata(struct EOTMetadata *toFree);
 
 #endif /* #define __LIBEOT_EOT_H__ */
 

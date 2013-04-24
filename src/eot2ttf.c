@@ -97,6 +97,7 @@ int main(int argc, char **argv)
     printError(writeResult, outFileName);
     return 1;
   }
+  EOTfreeMetadata(&out);
   fclose(outFile);
 } 
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */

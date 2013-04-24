@@ -16,6 +16,7 @@ const uint8_t ENCRYPTION_KEY = 0x50;
 
 enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, bool encrypted, FILE *outFile)
 {
+  enum EOTError result;
   uint8_t *buf = (uint8_t *)malloc(fontSize);
   for (unsigned i = 0; i < fontSize; ++i)
   {
@@ -30,35 +31,34 @@ enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, b
   }
   uint8_t *finalBuf;
   unsigned finalFontSize;
+  uint8_t *ctfs[3] = {NULL, NULL, NULL};
+  struct SFNTContainer *ctr = NULL;
   if (compressed)
   {
 #ifndef DONT_UNCOMPRESS
-    uint8_t *ctfs[3];
     unsigned sizes[3];
     struct Stream sBuf = constructStream(buf, fontSize);
-    enum EOTError result = unpackMtx(&sBuf, fontSize, ctfs, sizes);
+    result = unpackMtx(&sBuf, fontSize, ctfs, sizes);
+    if (result != EOT_SUCCESS)
+    {
+      goto CLEANUP;
+    }
     struct Stream streams[3];
     for (unsigned i = 0; i < 3; ++i)
     {
       streams[i] = constructStream(ctfs[i], sizes[i]);
     }
     struct Stream *streamPtrs[3] = {streams, streams + 1, streams + 2}; /* ugh */
-    if (result != EOT_SUCCESS)
-    {
-      return result;
-    }
-    struct SFNTContainer *ctr;
     result = parseCTF(streamPtrs, &ctr);
     if (result != EOT_SUCCESS)
     {
-      return result;
+      goto CLEANUP;
     }
     result = dumpContainer(ctr, &finalBuf, &finalFontSize);
     if (result != EOT_SUCCESS)
     {
-      return result;
+      goto CLEANUP;
     }
-    /* FIXME MEMORY */
 #else
     finalBuf = buf;
     finalFontSize = fontSize;
@@ -69,13 +69,30 @@ enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, b
     finalBuf = buf;
     finalFontSize = fontSize;
   }
-  fwrite(finalBuf, 1, (long)finalFontSize, outFile);
+  int itemsWritten = fwrite(finalBuf, 1, (long)finalFontSize, outFile);
+  if (itemsWritten == finalFontSize)
+  {
+    result = EOT_SUCCESS;
+  }
+  else
+  {
+    result = EOT_FWRITE_ERROR;
+  }
+CLEANUP:
   if (finalBuf != buf)
   {
     free(finalBuf);
   }
   free(buf);
-  return EOT_SUCCESS;
+  for (unsigned i = 0; i < 3; ++i)
+  {
+    free(ctfs[i]);
+  }
+  if (ctr)
+  {
+    freeContainer(ctr);
+  }
+  return result;
 }
 
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */

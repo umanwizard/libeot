@@ -696,23 +696,6 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf, struct SFNTTable *loca
     {
       return result;
     }
-    //MEGA FIXME: Still do this !!!!!
-    /* switch (sResult)
-    {
-      case EOT_STREAM_OK:
-        break;
-      case EOT_OUT_OF_RESERVED_SPACE:
-        overranAllocatedSpace = true;
-        sResult = reserve(&sOut, sOut.reserved * 2);
-        if (sResult != EOT_STREAM_OK) return EOT_CANT_ALLOCATE_MEMORY;
-        --i; // try again
-        continue;
-      case EOT_NOT_ENOUGH_DATA:
-        notEnoughGlyphs = true;
-        break;
-      default:
-        return EOT_CORRUPT_FILE;
-    } */
     /* do padding */
     if (sOut.pos % 2)
     {

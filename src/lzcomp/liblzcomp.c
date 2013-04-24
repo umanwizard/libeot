@@ -1,3 +1,8 @@
+/* Copyright (c) 2013 Brennan T. Vincent <brennanv@email.arizona.edu>
+ * This file is a part of libeot, which is licensed under the MPL license, version 2.0.
+ * For full details, see the file LICENSE
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>

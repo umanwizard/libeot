@@ -11,7 +11,9 @@
 
 #include "EOTError.h"
 
-enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, bool encrypted, FILE *outFile);
+enum EOTError writeFontBuffer(const uint8_t *font, unsigned fontSize, bool compressed, bool encrypted, uint8_t **finalOutBuffer, unsigned *finalFontSize);
+
+enum EOTError writeFontFile(const uint8_t *font, unsigned fontSize, bool compressed, bool encrypted, FILE *outFile);
 
 #endif /* #define __LIBEOT_WRITE_FONT_FILE_H__ */
 

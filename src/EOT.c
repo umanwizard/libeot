@@ -8,24 +8,24 @@
 
 #include "EOT.h"
 
-uint32_t EOTreadU32LE(uint8_t *bytes)
+uint32_t EOTreadU32LE(const uint8_t *bytes)
 {
   return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
 }
 
-uint16_t EOTreadU16LE(uint8_t *bytes)
+uint16_t EOTreadU16LE(const uint8_t *bytes)
 {
   return bytes[0] | (bytes[1] << 8);
 }
 
-unsigned EOTgetMetadataLength(uint8_t *bytes)
+unsigned EOTgetMetadataLength(const uint8_t *bytes)
 {
   uint32_t totalLength = EOTreadU32LE(bytes);
   uint32_t fontLength = EOTreadU32LE(bytes + 4);
   return totalLength - fontLength;
 }
 
-enum EOTError EOTgetString(uint8_t **scanner, uint8_t *begin, unsigned bytesLength,
+enum EOTError EOTgetString(const uint8_t **scanner, const uint8_t *begin, unsigned bytesLength,
       uint16_t *size, uint16_t **string)
 {
   if (*string)
@@ -63,7 +63,7 @@ enum EOTError EOTgetString(uint8_t **scanner, uint8_t *begin, unsigned bytesLeng
   return EOT_SUCCESS;
 }
 
-enum EOTError EOTgetByteArray(uint8_t **scanner, uint8_t *begin,
+enum EOTError EOTgetByteArray(const uint8_t **scanner, const uint8_t *begin,
     unsigned bytesLength, uint32_t *size, uint8_t **array)
 {
   if (*array)
@@ -137,7 +137,7 @@ void EOTfreeMetadata(struct EOTMetadata *d)
 
 #define EOT_ENSURE_STRING_NOERR(E) {enum EOTError macro_defined_var_E = E; if(macro_defined_var_E != EOT_SUCCESS) { EOTfreeMetadata(out); return macro_defined_var_E; }}
 
-enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
+enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
     struct EOTMetadata *out)
 {
   struct EOTMetadata zero = {0};
@@ -146,7 +146,7 @@ enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
     return EOT_INSUFFICIENT_BYTES;
   }
   *out = zero;
-  uint8_t *scanner = bytes;
+  const uint8_t *scanner = bytes;
   EOT_ENSURE_SCANNER(4);
   out->totalSize = EOTreadU32LE(scanner);
   scanner += 4;

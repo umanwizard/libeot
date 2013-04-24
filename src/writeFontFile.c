@@ -14,7 +14,7 @@
 #include "ctf/parseCTF.h"
 const uint8_t ENCRYPTION_KEY = 0x50;
 
-enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, bool encrypted, FILE *outFile)
+enum EOTError writeFontBuffer(const uint8_t *font, unsigned fontSize, bool compressed, bool encrypted, uint8_t **finalOutBuffer, unsigned *finalFontSize)
 {
   enum EOTError result;
   uint8_t *buf = (uint8_t *)malloc(fontSize);
@@ -29,8 +29,6 @@ enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, b
       buf[i] = font[i];
     }
   }
-  uint8_t *finalBuf;
-  unsigned finalFontSize;
   uint8_t *ctfs[3] = {NULL, NULL, NULL};
   struct SFNTContainer *ctr = NULL;
   if (compressed)
@@ -54,21 +52,44 @@ enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, b
     {
       goto CLEANUP;
     }
-    result = dumpContainer(ctr, &finalBuf, &finalFontSize);
+    result = dumpContainer(ctr, finalOutBuffer, finalFontSize);
     if (result != EOT_SUCCESS)
     {
       goto CLEANUP;
     }
 #else
-    finalBuf = buf;
-    finalFontSize = fontSize;
+    *finalOutBuffer = buf;
+    *finalFontSize = fontSize;
 #endif
   }
   else
   {
-    finalBuf = buf;
-    finalFontSize = fontSize;
+    *finalOutBuffer = buf;
+    *finalFontSize = fontSize;
   }
+  result = EOT_SUCCESS;
+CLEANUP:
+  if (*finalOutBuffer != buf)
+  {
+    free(buf);
+  }
+  for (unsigned i = 0; i < 3; ++i)
+  {
+    free(ctfs[i]);
+  }
+  if (ctr)
+  {
+    freeContainer(ctr);
+  }
+  return result;
+}
+
+enum EOTError writeFontFile(const uint8_t *font, unsigned fontSize, bool compressed, bool encrypted, FILE *outFile)
+{
+  enum EOTError result;
+  uint8_t *finalBuf;
+  unsigned finalFontSize;
+  result = writeFontBuffer(font, fontSize, compressed, encrypted, &finalBuf, &finalFontSize);
   int itemsWritten = fwrite(finalBuf, 1, (long)finalFontSize, outFile);
   if (itemsWritten == finalFontSize)
   {
@@ -78,20 +99,7 @@ enum EOTError writeFontFile(uint8_t *font, unsigned fontSize, bool compressed, b
   {
     result = EOT_FWRITE_ERROR;
   }
-CLEANUP:
-  if (finalBuf != buf)
-  {
-    free(finalBuf);
-  }
-  free(buf);
-  for (unsigned i = 0; i < 3; ++i)
-  {
-    free(ctfs[i]);
-  }
-  if (ctr)
-  {
-    freeContainer(ctr);
-  }
+  free(finalBuf);
   return result;
 }
 

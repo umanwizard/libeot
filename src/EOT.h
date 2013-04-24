@@ -88,8 +88,8 @@ struct EOTMetadata
   uint16_t *do_not_use;
 };
 
-unsigned EOTgetMetadataLength(uint8_t *bytes);
-enum EOTError EOTfillMetadata(uint8_t *bytes, unsigned bytesLength,
+unsigned EOTgetMetadataLength(const uint8_t *bytes);
+enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
     struct EOTMetadata *out);
 void EOTfreeMetadata(struct EOTMetadata *toFree);
 

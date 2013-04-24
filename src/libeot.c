@@ -14,30 +14,30 @@
 #include "flags.h"
 #include "writeFontFile.h"
 
-void printError(enum EOTError error, const char *filename, FILE *out)
+void printError(enum EOTError error, FILE *out)
 {
   switch (error)
   {
   case EOT_SUCCESS:
     break;
   case EOT_INSUFFICIENT_BYTES:
-    fprintf(out, "The file %s appears truncated.\n", filename);
+    fputs("The font file appears truncated.\n", out);
     break;
   case EOT_BOGUS_STRING_SIZE:
   case EOT_CORRUPT_FILE:
-    fprintf(out, "The file %s appears corrupt.\n", filename);
+    fputs("The font file appears corrupt.\n", out);
     break;
   case EOT_CANT_ALLOCATE_MEMORY:
-    fprintf(out, "Couldn't allocate sufficient memory.\n");
+    fputs("Couldn't allocate sufficient memory.\n", out);
     break;
   case EOT_OTHER_STDLIB_ERROR:
-    fprintf(out, "There was an unknown system error.\n");
+    fputs("There was an unknown system error.\n", out);
     break;
   case EOT_COMPRESSION_NOT_YET_IMPLEMENTED:
-    fprintf(out, "MTX Compression has not yet been implemented in this version of libeot. The font could therefore not be converted.\n");
+    fputs("MTX Compression has not yet been implemented in this version of libeot. The font could therefore not be converted.\n", out);
     break;
   default:
-    fprintf(out, "Unknown error: this is a bug in libeot; it does not *necessarily* indicate a corrupted font file.\n");
+    fputs("Unknown error: this is a bug in libeot; it does not *necessarily* indicate a corrupted font file.\n", out);
     break;
   }
 
@@ -46,7 +46,11 @@ void printError(enum EOTError error, const char *filename, FILE *out)
 enum EOTError eot2ttf_file(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, FILE *out)
 {
   enum EOTError result = EOTfillMetadata(font, fontSize, metadataOut);
-  if (result != EOT_SUCCESS)
+  if (result >= EOT_WARN)
+  {
+    printError(result, stderr);
+  }
+  else if (result != EOT_SUCCESS)
   {
     return result;
   }
@@ -63,13 +67,21 @@ enum EOTError eot2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTM
     unsigned *fontSizeOut)
 {
   enum EOTError result = EOTfillMetadata(font, fontSize, metadataOut);
-  if (result != EOT_SUCCESS)
+  if (result >= EOT_WARN)
+  {
+    printError(result, stderr);
+  }
+  else if (result != EOT_SUCCESS)
   {
     return result;
   }
 
   enum EOTError writeResult = writeFontBuffer(font + metadataOut->fontDataOffset, metadataOut->fontDataSize, metadataOut->flags & TTEMBED_TTCOMPRESSED, metadataOut->flags & TTEMBED_XORENCRYPTDATA, fontOut, fontSizeOut);
-  if (writeResult != EOT_SUCCESS)
+  if (result >= EOT_WARN)
+  {
+    printError(result, stderr);
+  }
+  else if (writeResult != EOT_SUCCESS)
   {
     return writeResult;
   }

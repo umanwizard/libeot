@@ -15,7 +15,7 @@
 enum EOTError eot2ttf_file(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, FILE *out);
 enum EOTError eot2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, uint8_t **fontOut,
     unsigned *fontSizeOut);
-void printError(enum EOTError, const char *filename, FILE *out);
+void printError(enum EOTError, FILE *out);
 
 #endif /* #define __LIBEOT_LIBEOT_H__ */
 

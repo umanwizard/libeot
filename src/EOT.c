@@ -137,39 +137,13 @@ void EOTfreeMetadata(struct EOTMetadata *d)
 
 #define EOT_ENSURE_STRING_NOERR(E) {enum EOTError macro_defined_var_E = E; if(macro_defined_var_E != EOT_SUCCESS) { EOTfreeMetadata(out); return macro_defined_var_E; }}
 
-enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
-    struct EOTMetadata *out)
+enum EOTError EOTfillMetadataSpecifyingVersion(const uint8_t *bytes, unsigned bytesLength,
+    struct EOTMetadata *out, enum EOTVersion version)
 {
   struct EOTMetadata zero = {0};
-  if (bytesLength < 8 || bytesLength < EOTgetMetadataLength(bytes))
-  {
-    return EOT_INSUFFICIENT_BYTES;
-  }
   *out = zero;
+  out->version = version;
   const uint8_t *scanner = bytes;
-  EOT_ENSURE_SCANNER(4);
-  out->totalSize = EOTreadU32LE(scanner);
-  scanner += 4;
-  EOT_ENSURE_SCANNER(4);
-  out->fontDataSize = EOTreadU32LE(scanner);
-  scanner += 4;
-  EOT_ENSURE_SCANNER(4);
-  uint32_t versionMagic = EOTreadU32LE(scanner);
-  scanner += 4;
-  switch (versionMagic)
-  {
-  case 0x00010000:
-    out->version = VERSION_1;
-    break;
-  case 0x00020001:
-    out->version = VERSION_2;
-    break;
-  case 0x00020002:
-    out->version = VERSION_3;
-    break;
-  default:
-    return EOT_CORRUPT_FILE;
-  }
   EOT_ENSURE_SCANNER(4);
   out->flags = EOTreadU32LE(scanner);
   scanner += 4;
@@ -251,6 +225,79 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
     }
   }
   out->fontDataOffset = scanner - bytes;
+  int expectedHeaderSize = (int)(out->totalSize) - (int)(out->fontDataSize);
+  if (out->fontDataOffset < expectedHeaderSize)
+  {
+    return EOT_HEADER_TOO_BIG;
+  }
   return EOT_SUCCESS;
+}
+
+enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
+    struct EOTMetadata *out)
+{
+  const uint8_t *scanner = bytes;
+  if (bytesLength < 8 || bytesLength < EOTgetMetadataLength(bytes))
+  {
+    return EOT_INSUFFICIENT_BYTES;
+  }
+  EOT_ENSURE_SCANNER(4);
+  out->totalSize = EOTreadU32LE(scanner);
+  scanner += 4;
+  EOT_ENSURE_SCANNER(4);
+  out->fontDataSize = EOTreadU32LE(scanner);
+  scanner += 4;
+  EOT_ENSURE_SCANNER(4);
+  uint32_t versionMagic = EOTreadU32LE(scanner);
+  scanner += 4;
+  enum EOTVersion codedVersion;
+  switch (versionMagic)
+  {
+  case 0x00010000:
+    codedVersion = VERSION_1;
+    break;
+  case 0x00020001:
+    codedVersion = VERSION_2;
+    break;
+  case 0x00020002:
+    codedVersion = VERSION_3;
+    break;
+  default:
+    return EOT_CORRUPT_FILE;
+  }
+  enum EOTVersion tryVersion = codedVersion;
+  bool bumpedUp = false, knockedDown = false;
+  while (true)
+  {
+    enum EOTError result = EOTfillMetadataSpecifyingVersion(scanner, bytesLength - (scanner - bytes), out, tryVersion);
+    if (result == EOT_SUCCESS)
+    {
+      return tryVersion == codedVersion ? EOT_SUCCESS : EOT_WARN_BAD_VERSION;
+    }
+    if (result == EOT_INSUFFICIENT_BYTES)
+    {
+      if (knockedDown || (tryVersion == VERSION_3))
+      {
+        return EOT_CORRUPT_FILE;
+      }
+      knockedDown = false;
+      bumpedUp = true;
+      ++tryVersion;
+    }
+    else if (result == EOT_HEADER_TOO_BIG)
+    {
+      if (bumpedUp || (tryVersion == VERSION_1))
+      {
+        return EOT_CORRUPT_FILE;
+      }
+      knockedDown = true;
+      bumpedUp = false;
+      --tryVersion;
+    }
+    else
+    {
+      return result;
+    }
+  }
 }
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */

@@ -59,7 +59,7 @@ int main(int argc, char **argv)
   enum EOTError result = eot2ttf_file(font, st.st_size, &out, outFile);
   if (result != EOT_SUCCESS)
   {
-    printError(result, argv[1], stderr);
+    printError(result, stderr);
     return 1;
   }
   EOTfreeMetadata(&out);

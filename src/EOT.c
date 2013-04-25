@@ -131,6 +131,8 @@ void EOTfreeMetadata(struct EOTMetadata *d)
   {
     free(d->eudcInfo.fontData);
   }
+  struct EOTMetadata zero = {0};
+  *d = zero;
 }
 
 #define EOT_ENSURE_SCANNER(N) if (scanner - bytes + N >= bytesLength) { EOTfreeMetadata(out); return EOT_INSUFFICIENT_BYTES; }
@@ -242,10 +244,10 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
     return EOT_INSUFFICIENT_BYTES;
   }
   EOT_ENSURE_SCANNER(4);
-  out->totalSize = EOTreadU32LE(scanner);
+  unsigned totalSize = EOTreadU32LE(scanner);
   scanner += 4;
   EOT_ENSURE_SCANNER(4);
-  out->fontDataSize = EOTreadU32LE(scanner);
+  unsigned fontDataSize = EOTreadU32LE(scanner);
   scanner += 4;
   EOT_ENSURE_SCANNER(4);
   uint32_t versionMagic = EOTreadU32LE(scanner);
@@ -269,12 +271,19 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
   bool bumpedUp = false, knockedDown = false;
   while (true)
   {
-    enum EOTError result = EOTfillMetadataSpecifyingVersion(scanner, bytesLength - (scanner - bytes), out, tryVersion, scanner - bytes);
+    EOTfreeMetadata(out);
+    out->totalSize = totalSize;
+    out->fontDataSize = fontDataSize;
+    if (bytesLength + bytes < out->fontDataSize + scanner)
+    {
+      return EOT_CORRUPT_FILE;
+    }
+    enum EOTError result = EOTfillMetadataSpecifyingVersion(scanner, bytesLength - out->fontDataSize - (scanner - bytes), out, tryVersion, scanner - bytes);
     if (result == EOT_SUCCESS)
     {
       return tryVersion == codedVersion ? EOT_SUCCESS : EOT_WARN_BAD_VERSION;
     }
-    if (result == EOT_INSUFFICIENT_BYTES)
+    if (result == EOT_HEADER_TOO_BIG)
     {
       if (knockedDown || (tryVersion == VERSION_3))
       {
@@ -284,7 +293,7 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
       bumpedUp = true;
       ++tryVersion;
     }
-    else if (result == EOT_HEADER_TOO_BIG)
+    else if (result == EOT_INSUFFICIENT_BYTES)
     {
       if (bumpedUp || (tryVersion == VERSION_1))
       {

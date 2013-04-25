@@ -33,7 +33,7 @@ enum EOTError EOTgetString(const uint8_t **scanner, const uint8_t *begin, unsign
     free(*string);
   }
   *string = 0;
-  if (*scanner - begin + 2 >= bytesLength)
+  if (*scanner - begin + 2 > bytesLength)
   {
     return EOT_INSUFFICIENT_BYTES;
   }
@@ -43,7 +43,7 @@ enum EOTError EOTgetString(const uint8_t **scanner, const uint8_t *begin, unsign
   {
     return EOT_BOGUS_STRING_SIZE;
   }
-  if (*scanner - begin + *size >= bytesLength)
+  if (*scanner - begin + *size > bytesLength)
   {
     return EOT_INSUFFICIENT_BYTES;
   }
@@ -199,11 +199,11 @@ enum EOTError EOTfillMetadataSpecifyingVersion(const uint8_t *bytes, unsigned by
     scanner += 2;
     EOT_ENSURE_STRING_NOERR(EOTgetString(&scanner, bytes, bytesLength, &(out->do_not_use_size),
           &(out->do_not_use)));
-    EOT_ENSURE_SCANNER(4);
-    EOTreadU32LE(scanner); /* root string checksum */
-    scanner += 4;
     if (out->version == VERSION_3)
     {
+      EOT_ENSURE_SCANNER(4);
+      EOTreadU32LE(scanner); /* root string checksum */
+      scanner += 4;
       EOT_ENSURE_SCANNER(4);
       out->eudcInfo.codePage = EOTreadU32LE(scanner);
       scanner += 6;

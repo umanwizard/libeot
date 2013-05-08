@@ -71,13 +71,13 @@ enum EOTError EOTgetByteArray(const uint8_t **scanner, const uint8_t *begin,
     free(*array);
   }
   *array = 0;
-  if (*scanner - begin + 4 >= bytesLength)
+  if (*scanner - begin + 4 > bytesLength)
   {
     return EOT_INSUFFICIENT_BYTES;
   }
   *size = EOTreadU32LE(*scanner);
   *scanner += 4;
-  if (*scanner - begin + *size >= bytesLength)
+  if (*scanner - begin + *size > bytesLength)
   {
     return EOT_INSUFFICIENT_BYTES;
   }

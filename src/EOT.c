@@ -8,6 +8,8 @@
 
 #include "EOT.h"
 
+const uint16_t EDITING_MASK = 0x0008;
+
 uint32_t EOTreadU32LE(const uint8_t *bytes)
 {
   return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
@@ -308,5 +310,16 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
       return result;
     }
   }
+}
+
+/* Please think twice before circumventing this function.
+ * Does your personal sense of morality really let you take others' work without their permission?
+ *
+ * I'm not suggesting any system of morality is right or wrong;
+ * I'm merely asking that you reflect on it before changing anything here.
+ */
+bool canLegallyEdit(const struct EOTMetadata *metadata)
+{
+  return metadata->permissions == 0 || (metadata->permissions & EDITING_MASK != 0);
 }
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */

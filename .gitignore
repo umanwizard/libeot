@@ -17,6 +17,11 @@ install-sh
 a.out
 out
 *.a
+*.la
+*.lo
 stamp-h1
 *.csv
 !.gitignore
+autoscan.log
+libtool
+ltmain.sh

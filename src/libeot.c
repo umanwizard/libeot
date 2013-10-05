@@ -88,4 +88,9 @@ enum EOTError eot2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTM
   return EOT_SUCCESS;
 }
 
+void freeEOTBuffer(const uint8_t *buffer)
+{
+  free(buffer);
+}
+
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */

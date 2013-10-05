@@ -22,4 +22,5 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
 AC_PROG_RANLIB
 AM_PROG_AR
+LT_INIT([disable-static])
 AC_OUTPUT

@@ -15,7 +15,7 @@
 #include "EOT.h"
 #include "flags.h"
 #include "writeFontFile.h"
-#include "libeot.h"
+#include "../inc/libeot.h"
 
 void usage(char *progName)
 {

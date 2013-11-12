@@ -19,3 +19,7 @@ else
 eot2ttf_CFLAGS = $(release_flags)
 libeot_la_CFLAGS = $(release_flags)
 endif
+
+EXTRA_DIST = \
+	LICENSE \
+	PATENTS

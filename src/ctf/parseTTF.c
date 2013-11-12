@@ -3,8 +3,9 @@
  * For full details, see the file LICENSE
  */
 
+#include <libeot/libeot.h>
+
 #include "parseTTF.h"
-#include "../EOTError.h"
 #include "SFNTContainer.h"
 #include "../util/stream.h"
 

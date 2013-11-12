@@ -8,7 +8,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "EOTError.h"
+#include <libeot/libeot.h>
+
 #include "util/stream.h"
 #include "lzcomp/liblzcomp.h"
 #include "ctf/parseCTF.h"

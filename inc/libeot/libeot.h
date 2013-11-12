@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "../src/EOT.h"
-#include "../src/EOTError.h"
+#include "EOT.h"
+#include "EOTError.h"
 
 enum EOTError eot2ttf_file(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, FILE *out);
 enum EOTError eot2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, uint8_t **fontOut,

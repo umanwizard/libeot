@@ -7,7 +7,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../EOTError.h"
+#include <libeot/libeot.h>
+
 #include "../util/stream.h"
 #include "SFNTContainer.h"
 

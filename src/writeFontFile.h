@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "EOTError.h"
+#include <libeot/libeot.h>
 
 enum EOTError writeFontBuffer(const uint8_t *font, unsigned fontSize, bool compressed, bool encrypted, uint8_t **finalOutBuffer, unsigned *finalFontSize);
 

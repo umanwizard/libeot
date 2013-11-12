@@ -6,7 +6,8 @@
 #ifndef __LIBEOT_PARSE_CTF_H__
 #define __LIBEOT_PARSE_CTF_H__
 
-#include "../EOTError.h"
+#include <libeot/libeot.h>
+
 #include "../util/stream.h"
 #include "SFNTContainer.h"
 

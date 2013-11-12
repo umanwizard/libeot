@@ -8,7 +8,8 @@
 
 #include <stdint.h>
 
-#include "../EOTError.h"
+#include <libeot/libeot.h>
+
 #include "../util/stream.h"
 
 struct SFNTTable

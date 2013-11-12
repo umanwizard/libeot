@@ -8,7 +8,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../EOTError.h"
+#include <libeot/libeot.h>
+
 #include "../util/stream.h"
 #include "../util/max.h"
 #include "../util/logging.h"

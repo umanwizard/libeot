@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "EOT.h"
+#include <libeot/libeot.h>
 
 const uint16_t EDITING_MASK = 0x0008;
 

@@ -6,13 +6,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
+#include <libeot/libeot.h>
+
 #include "MTXMEM.H"
 #include "BITIO.H"
 #include "AHUFF.H"
 #include "LZCOMP.H"
 #include "ERRCODES.H"
 #include "../util/stream.h"
-#include "../EOTError.h"
 
 unsigned be24ToCpu(const uint8_t *buf)
 {

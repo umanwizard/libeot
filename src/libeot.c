@@ -10,7 +10,8 @@
 
 #include <sys/stat.h>
 
-#include "EOT.h"
+#include <libeot/libeot.h>
+
 #include "flags.h"
 #include "writeFontFile.h"
 

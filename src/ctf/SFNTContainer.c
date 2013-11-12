@@ -100,7 +100,7 @@ enum StreamResult _writeTableDirectory(struct SFNTContainer *ctr, struct Stream 
     RD(BEWriteU32, out, tbl->offset, sResult);
     RD(BEWriteU32, out, tbl->bufSize, sResult);
   }
-  return EOT_SUCCESS;
+  return EOT_STREAM_OK;
 }
 
 /* log_2(largest power of 2 <= n) */

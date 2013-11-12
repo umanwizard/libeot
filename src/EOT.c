@@ -320,6 +320,6 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
  */
 bool EOTcanLegallyEdit(const struct EOTMetadata *metadata)
 {
-  return metadata->permissions == 0 || (metadata->permissions & EDITING_MASK != 0);
+  return metadata->permissions == 0 || ((metadata->permissions & EDITING_MASK) != 0);
 }
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */

@@ -12,11 +12,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <libeot/libeot.h>
+
 #include "EOT.h"
 #include "flags.h"
 #include "writeFontFile.h"
-
-#include "libeot.h"
 
 void usage(char *progName)
 {

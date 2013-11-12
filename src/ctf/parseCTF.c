@@ -637,11 +637,11 @@ enum EOTError decodeGlyph(struct Stream **streams, struct Stream *out)
     if (numContours == 0x7FFF)
     {
       /* Read real numContours and bounding box info. */
-      RD(BEReadS16, in, &numContours, sResult);
-      RD(BEReadS16, in, &xMin, sResult);
-      RD(BEReadS16, in, &yMin, sResult);
-      RD(BEReadS16, in, &xMax, sResult);
-      RD(BEReadS16, in, &yMax, sResult);
+      RD2(BEReadS16, in, &numContours, sResult);
+      RD2(BEReadS16, in, &xMin, sResult);
+      RD2(BEReadS16, in, &yMin, sResult);
+      RD2(BEReadS16, in, &xMax, sResult);
+      RD2(BEReadS16, in, &yMax, sResult);
     }
     else
     {

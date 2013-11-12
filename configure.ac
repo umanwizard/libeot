@@ -19,7 +19,10 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 CFLAGS=$OLD_CFLAGS
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([
+    Makefile \
+    libeot.pc \
+])
 AC_PROG_RANLIB
 AM_PROG_AR
 LT_INIT([disable-static])

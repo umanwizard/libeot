@@ -25,3 +25,4 @@ stamp-h1
 autoscan.log
 libtool
 ltmain.sh
+libeot.pc

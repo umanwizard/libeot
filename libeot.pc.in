@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libeot
+Description: Library for parsing Embedded OpenType files and converting them to other formats
+Version: @VERSION@
+Libs: -L${libdir} -leot
+Cflags: -I${includedir}

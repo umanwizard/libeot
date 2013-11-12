@@ -318,7 +318,7 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
  * I'm not suggesting any system of morality is right or wrong;
  * I'm merely asking that you reflect on it before changing anything here.
  */
-bool canLegallyEdit(const struct EOTMetadata *metadata)
+bool EOTcanLegallyEdit(const struct EOTMetadata *metadata)
 {
   return metadata->permissions == 0 || (metadata->permissions & EDITING_MASK != 0);
 }

@@ -12,12 +12,12 @@
 #include "EOT.h"
 #include "EOTError.h"
 
-enum EOTError eot2ttf_file(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, FILE *out);
-enum EOTError eot2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, uint8_t **fontOut,
+enum EOTError EOT2ttf_file(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, FILE *out);
+enum EOTError EOT2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, uint8_t **fontOut,
     unsigned *fontSizeOut);
 
-void freeEOTBuffer(const uint8_t *buffer);
-void printError(enum EOTError, FILE *out);
+void EOTfreeBuffer(const uint8_t *buffer);
+void EOTprintError(enum EOTError, FILE *out);
 
 #endif /* #define __LIBEOT_LIBEOT_H__ */
 

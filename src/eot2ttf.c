@@ -56,10 +56,10 @@ int main(int argc, char **argv)
     err(1, NULL);
   }
   struct EOTMetadata out;
-  enum EOTError result = eot2ttf_file(font, st.st_size, &out, outFile);
+  enum EOTError result = EOT2ttf_file(font, st.st_size, &out, outFile);
   if (result != EOT_SUCCESS)
   {
-    printError(result, stderr);
+    EOTprintError(result, stderr);
     return 1;
   }
   EOTfreeMetadata(&out);

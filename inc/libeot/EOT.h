@@ -92,7 +92,7 @@ unsigned EOTgetMetadataLength(const uint8_t *bytes);
 enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
     struct EOTMetadata *out);
 void EOTfreeMetadata(struct EOTMetadata *toFree);
-bool canLegallyEdit(const struct EOTMetadata *metadata);
+bool EOTcanLegallyEdit(const struct EOTMetadata *metadata);
 
 #endif /* #define __LIBEOT_EOT_H__ */
 

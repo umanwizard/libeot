@@ -15,7 +15,7 @@
 #include "flags.h"
 #include "writeFontFile.h"
 
-void printError(enum EOTError error, FILE *out)
+void EOTprintError(enum EOTError error, FILE *out)
 {
   switch (error)
   {
@@ -44,12 +44,12 @@ void printError(enum EOTError error, FILE *out)
 
 }
 
-enum EOTError eot2ttf_file(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, FILE *out)
+enum EOTError EOT2ttf_file(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, FILE *out)
 {
   enum EOTError result = EOTfillMetadata(font, fontSize, metadataOut);
   if (result >= EOT_WARN)
   {
-    printError(result, stderr);
+    EOTprintError(result, stderr);
   }
   else if (result != EOT_SUCCESS)
   {
@@ -64,13 +64,13 @@ enum EOTError eot2ttf_file(const uint8_t *font, unsigned fontSize, struct EOTMet
   return EOT_SUCCESS;
 }
 
-enum EOTError eot2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, uint8_t **fontOut,
+enum EOTError EOT2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTMetadata *metadataOut, uint8_t **fontOut,
     unsigned *fontSizeOut)
 {
   enum EOTError result = EOTfillMetadata(font, fontSize, metadataOut);
   if (result >= EOT_WARN)
   {
-    printError(result, stderr);
+    EOTprintError(result, stderr);
   }
   else if (result != EOT_SUCCESS)
   {
@@ -80,7 +80,7 @@ enum EOTError eot2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTM
   enum EOTError writeResult = writeFontBuffer(font + metadataOut->fontDataOffset, metadataOut->fontDataSize, metadataOut->flags & TTEMBED_TTCOMPRESSED, metadataOut->flags & TTEMBED_XORENCRYPTDATA, fontOut, fontSizeOut);
   if (result >= EOT_WARN)
   {
-    printError(result, stderr);
+    EOTprintError(result, stderr);
   }
   else if (writeResult != EOT_SUCCESS)
   {
@@ -89,7 +89,7 @@ enum EOTError eot2ttf_buffer(const uint8_t *font, unsigned fontSize, struct EOTM
   return EOT_SUCCESS;
 }
 
-void freeEOTBuffer(const uint8_t *buffer)
+void EOTfreeBuffer(const uint8_t *buffer)
 {
   free(buffer);
 }

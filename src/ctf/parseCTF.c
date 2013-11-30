@@ -76,7 +76,11 @@ enum StreamResult _ucvt_rdVal(struct Stream *sIn, int16_t *lastValue)
 
 enum EOTError unpackCVT(struct SFNTTable *out, struct Stream *sIn)
 {
-  enum StreamResult sResult;
+  enum StreamResult sResult = seekAbsolute(sIn, out->offset);
+  if (sResult != EOT_STREAM_OK)
+  {
+    return EOT_CORRUPT_FILE;
+  }
   uint16_t tableLength;
   RD2(BEReadU16, sIn, &tableLength, sResult);
   struct Stream sOut = constructStream(NULL, 0);

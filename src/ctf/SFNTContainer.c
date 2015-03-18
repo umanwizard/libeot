@@ -38,6 +38,7 @@ enum EOTError constructContainer(struct SFNTContainer **out)
   (*out)->numTables = 0;
   (*out)->_numTablesReserved = 0;
   (*out)->tables = NULL;
+  (*out)->isTTF = 0;
   return EOT_SUCCESS;
 }
 
@@ -130,7 +131,7 @@ unsigned _maxpw(unsigned n)
 enum StreamResult _writeOffsetTable(struct SFNTContainer *ctr, struct Stream *out)
 {
   enum StreamResult sResult;
-  uint32_t scalerType = 0x00010000; /* magical number from TTF standard */
+  uint32_t scalerType = ctr->isTTF ? 0x00010000 : 0x4F54544F; /* magical number from OTF/TTF standard */
   uint16_t numTables = (uint16_t)(ctr->numTables);
   uint16_t searchRange = (uint16_t)(_maxpw(ctr->numTables) * 16);
   uint16_t entrySelector = (uint16_t)(_lgflr(ctr->numTables));

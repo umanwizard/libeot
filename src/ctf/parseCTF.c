@@ -831,7 +831,7 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
       }
     }
   }
-  if (!loca)
+  if (glyf && !loca)
   {
     logWarning("EOT out of spec: no blank loca table found!\n");
     result = addTable(*out, "loca", &loca);
@@ -843,10 +843,6 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     {
       return EOT_LOGIC_ERROR;
     }
-  }
-  if (!glyf)
-  {
-    return EOT_NO_GLYF_TABLE;
   }
   if (!maxp)
   {
@@ -860,22 +856,25 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
   {
     return EOT_NO_HMTX_TABLE;
   }
-  struct TTFheadData headData;
-  result = TTFParseHead(head, &headData);
-  if (result != EOT_SUCCESS)
-  {
-    return result;
-  }
-  struct TTFmaxpData maxpData;
-  result = TTFParseMaxp(maxp, &maxpData);
-  if (result != EOT_SUCCESS)
-  {
-    return result;
-  }
-  result = populateGlyfAndLoca(glyf, loca, &headData, &maxpData, streams);
-  if (result != EOT_SUCCESS)
-  {
-    return result;
+  if (glyf) {
+    (*out)->isTTF = 1;
+    struct TTFheadData headData;
+    result = TTFParseHead(head, &headData);
+    if (result != EOT_SUCCESS)
+    {
+      return result;
+    }
+    struct TTFmaxpData maxpData;
+    result = TTFParseMaxp(maxp, &maxpData);
+    if (result != EOT_SUCCESS)
+    {
+      return result;
+    }
+    result = populateGlyfAndLoca(glyf, loca, &headData, &maxpData, streams);
+    if (result != EOT_SUCCESS)
+    {
+      return result;
+    }
   }
   /* result = populateHdmx(hdmx, &maxpData, &headData, &hmtxData, streams[0]);
   if (result != EOT_SUCCESS)

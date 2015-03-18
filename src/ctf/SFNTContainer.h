@@ -26,6 +26,7 @@ struct SFNTContainer
   unsigned numTables;
   unsigned _numTablesReserved;
   struct SFNTTable *tables;
+  unsigned isTTF;
 };
 
 enum EOTError constructContainer(struct SFNTContainer **out);

@@ -26,6 +26,8 @@ eot2ttf_CFLAGS = $(release_flags)
 libeot_la_CFLAGS = $(release_flags)
 endif
 
+libeot_la_LDFLAGS = -no-undefined
+
 EXTRA_DIST = \
 	LICENSE \
 	PATENTS

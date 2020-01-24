@@ -12,12 +12,12 @@ const uint16_t EDITING_MASK = 0x0008;
 
 uint32_t EOTreadU32LE(const uint8_t *bytes)
 {
-  return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
+  return (uint32_t)bytes[0] | ((uint32_t)bytes[1] << 8) | ((uint32_t)bytes[2] << 16) | ((uint32_t)bytes[3] << 24);
 }
 
 uint16_t EOTreadU16LE(const uint8_t *bytes)
 {
-  return bytes[0] | (bytes[1] << 8);
+  return (uint16_t)bytes[0] | ((uint16_t)bytes[1] << 8);
 }
 
 unsigned EOTgetMetadataLength(const uint8_t *bytes)

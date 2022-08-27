@@ -26,22 +26,26 @@ enum EOTError TTFParseMaxp(struct SFNTTable *tbl, struct TTFmaxpData *out)
 {
   struct Stream s = constructStream(tbl->buf, tbl->bufSize);
   enum StreamResult sResult;
-  sResult = seekRelative(&s, 4);
-  CHK_RD2(sResult);
+  // sResult = seekRelative(&s, 4);
+  memset(out, 0, sizeof(struct TTFmaxpData));
+  uint32_t version;
+  RD2(BEReadU32, &s, &version, sResult);
   RD2(BEReadU16, &s, &out->numGlyphs, sResult);
-  RD2(BEReadU16, &s, &out->maxPoints, sResult);
-  RD2(BEReadU16, &s, &out->maxContours, sResult);
-  RD2(BEReadU16, &s, &out->maxComponentPoints, sResult);
-  RD2(BEReadU16, &s, &out->maxComponentContours, sResult);
-  RD2(BEReadU16, &s, &out->maxZones, sResult);
-  RD2(BEReadU16, &s, &out->maxTwilightPoints, sResult);
-  RD2(BEReadU16, &s, &out->maxStorage, sResult);
-  RD2(BEReadU16, &s, &out->maxFunctionDefs, sResult);
-  RD2(BEReadU16, &s, &out->maxInstructionDefs, sResult);
-  RD2(BEReadU16, &s, &out->maxStackElements, sResult);
-  RD2(BEReadU16, &s, &out->maxSizeOfInstructions, sResult);
-  RD2(BEReadU16, &s, &out->maxComponentElements, sResult);
-  RD2(BEReadU16, &s, &out->maxComponentDepth, sResult);
+  if (version == 0x00010000) {
+    RD2(BEReadU16, &s, &out->maxPoints, sResult);
+    RD2(BEReadU16, &s, &out->maxContours, sResult);
+    RD2(BEReadU16, &s, &out->maxComponentPoints, sResult);
+    RD2(BEReadU16, &s, &out->maxComponentContours, sResult);
+    RD2(BEReadU16, &s, &out->maxZones, sResult);
+    RD2(BEReadU16, &s, &out->maxTwilightPoints, sResult);
+    RD2(BEReadU16, &s, &out->maxStorage, sResult);
+    RD2(BEReadU16, &s, &out->maxFunctionDefs, sResult);
+    RD2(BEReadU16, &s, &out->maxInstructionDefs, sResult);
+    RD2(BEReadU16, &s, &out->maxStackElements, sResult);
+    RD2(BEReadU16, &s, &out->maxSizeOfInstructions, sResult);
+    RD2(BEReadU16, &s, &out->maxComponentElements, sResult);
+    RD2(BEReadU16, &s, &out->maxComponentDepth, sResult);
+  }
   return EOT_SUCCESS;
 }
 

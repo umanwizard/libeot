@@ -3,12 +3,11 @@
  * version 2.0. For full details, see the file LICENSE
  */
 
+#include <libeot/libeot.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <libeot/libeot.h>
 
 #include "../triplet_encodings.h"
 #include "../util/logging.h"
@@ -26,7 +25,8 @@ struct SFNTOffsetTable {
 };
 
 enum StreamResult parseOffsetTable(struct Stream *s,
-                                   struct SFNTOffsetTable *tbl) {
+                                   struct SFNTOffsetTable *tbl)
+{
   enum StreamResult res;
   RD(BEReadU32, s, &tbl->scalarType, res);
   RD(BEReadU16, s, &tbl->numTables, res);
@@ -36,12 +36,14 @@ enum StreamResult parseOffsetTable(struct Stream *s,
   return EOT_STREAM_OK;
 }
 /*
-enum EOTError populateHdmx(struct SFNTTable *hdmx, struct TTFmaxpData *maxpData,
-struct TTFheadData *headData, struct TTFhmtxData *hmtxData, struct Stream *s)
+enum EOTError populateHdmx(struct SFNTTable *hdmx, struct TTFmaxpData
+*maxpData, struct TTFheadData *headData, struct TTFhmtxData *hmtxData, struct
+Stream *s)
 {
 }*/
 
-enum StreamResult _ucvt_rdVal(struct Stream *sIn, int16_t *lastValue) {
+enum StreamResult _ucvt_rdVal(struct Stream *sIn, int16_t *lastValue)
+{
   uint8_t code, b2;
   enum StreamResult sResult = BEReadU8(sIn, &code);
   int16_t val;
@@ -67,7 +69,8 @@ enum StreamResult _ucvt_rdVal(struct Stream *sIn, int16_t *lastValue) {
   return EOT_STREAM_OK;
 }
 
-enum EOTError unpackCVT(struct SFNTTable *out, struct Stream *sIn) {
+enum EOTError unpackCVT(struct SFNTTable *out, struct Stream *sIn)
+{
   enum StreamResult sResult = seekAbsolute(sIn, out->offset);
   if (sResult != EOT_STREAM_OK) {
     return EOT_CORRUPT_FILE;
@@ -92,7 +95,8 @@ enum EOTError unpackCVT(struct SFNTTable *out, struct Stream *sIn) {
 }
 
 /* http://www.w3.org/Submission/MTX/#id_255USHORT */
-enum StreamResult read255UShort(struct Stream *sIn, uint16_t *out) {
+enum StreamResult read255UShort(struct Stream *sIn, uint16_t *out)
+{
   uint8_t code, val1;
   enum StreamResult sResult;
   RD(BEReadU8, sIn, &code, sResult);
@@ -115,7 +119,8 @@ enum StreamResult read255UShort(struct Stream *sIn, uint16_t *out) {
 }
 
 /* http://www.w3.org/Submission/MTX/#id_255SHORT */
-enum StreamResult read255Short(struct Stream *sIn, int16_t *out) {
+enum StreamResult read255Short(struct Stream *sIn, int16_t *out)
+{
   uint8_t code;
   enum StreamResult sResult = BEReadU8(sIn, &code);
   CHK_RD(sResult);
@@ -154,7 +159,8 @@ enum _dpi_TypeRead { BYTE, SHORT };
 
 enum StreamResult _dpi_dump(struct Stream *out, enum _dpi_TypeRead *lastRead,
                             unsigned *typeLastReadCount, int16_t *data,
-                            unsigned *dataIndex) {
+                            unsigned *dataIndex)
+{
   enum StreamResult sResult;
 #define NPUSHB 0x40
 #define NPUSHW 0x41
@@ -191,7 +197,8 @@ enum StreamResult _dpi_dump(struct Stream *out, enum _dpi_TypeRead *lastRead,
 enum StreamResult _dpi_put(int16_t value, struct Stream *out,
                            enum _dpi_TypeRead *lastRead,
                            unsigned *typeLastReadCount, int16_t *data,
-                           unsigned *dataIndex) {
+                           unsigned *dataIndex)
+{
   enum StreamResult sResult;
   enum _dpi_TypeRead newType = (value >= 0 && value < 256) ? BYTE : SHORT;
   if (newType != *lastRead || *typeLastReadCount == 255) {
@@ -209,12 +216,14 @@ enum StreamResult _dpi_put(int16_t value, struct Stream *out,
 
 /* http://www.w3.org/Submission/MTX/#HopCodes */
 enum EOTError decodePushInstructions(struct Stream *sIn, struct Stream *sOut,
-                                     unsigned pushCount) {
+                                     unsigned pushCount)
+{
   enum StreamResult sResult;
   unsigned remaining = pushCount;
   enum _dpi_TypeRead typeLastRead =
-      BYTE; /* doesn't actually matter what this is initialized to since it will
-               just get reset with no effect if the first thing is a short */
+      BYTE; /* doesn't actually matter what this is initialized to since it
+               will just get reset with no effect if the first thing is a
+               short */
   unsigned typeLastReadCount = 0;
   unsigned dataIndex = 0;
   int16_t *data = (int16_t *)malloc(sizeof(int16_t) * pushCount);
@@ -304,7 +313,8 @@ CLEANUP:
   return returnedStatus;
 }
 
-uint8_t _dsg_makeFlags(int16_t x, int16_t y, bool onCurve, bool firstTime) {
+uint8_t _dsg_makeFlags(int16_t x, int16_t y, bool onCurve, bool firstTime)
+{
   const uint8_t FLG_ON_CURVE = 0x01;
   const uint8_t FLG_X_SHORT = 0x02;
   const uint8_t FLG_Y_SHORT = 0x04;
@@ -339,7 +349,8 @@ uint8_t _dsg_makeFlags(int16_t x, int16_t y, bool onCurve, bool firstTime) {
 enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams,
                                 struct Stream *out, bool calculateBoundingBox,
                                 int16_t minX, int16_t minY, int16_t maxX,
-                                int16_t maxY) {
+                                int16_t maxY)
+{
   if (numContours == 0) {
     return EOT_SUCCESS;
   }
@@ -499,8 +510,8 @@ CLEANUP:
   return returnedStatus;
 }
 
-enum EOTError decodeCompositeGlyph(struct Stream **streams,
-                                   struct Stream *out) {
+enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
+{
   const uint16_t FLG_ARGS_WORDS = 0x1, FLG_HAVE_SCALE = 0x8,
                  FLG_MORE_COMPONENTS = 0x20, FLG_HAVE_XY_SCALE = 0x40,
                  FLG_HAVE_2_BY_2 = 0x80, FLG_HAVE_INSTR = 0x100;
@@ -559,7 +570,8 @@ enum EOTError decodeCompositeGlyph(struct Stream **streams,
   return EOT_SUCCESS;
 }
 
-enum EOTError decodeGlyph(struct Stream **streams, struct Stream *out) {
+enum EOTError decodeGlyph(struct Stream **streams, struct Stream *out)
+{
   struct Stream *in = streams[0];
   int16_t numContours, xMin, yMin, xMax, yMax;
   bool calculateBoundingBox = false;
@@ -598,7 +610,8 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf,
                                   struct SFNTTable *loca,
                                   struct TTFheadData *headData,
                                   struct TTFmaxpData *maxpData,
-                                  struct Stream **streams) {
+                                  struct Stream **streams)
+{
   struct Stream *sCTF = streams[0];
   enum StreamResult sResult = seekAbsolute(sCTF, glyf->offset);
   if (sResult != EOT_STREAM_OK) {
@@ -655,7 +668,8 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf,
   return EOT_SUCCESS;
 }
 
-enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out) {
+enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
+{
   *out = NULL;
   enum EOTError result = constructContainer(out);
   struct SFNTOffsetTable offsetTable;

@@ -4,18 +4,17 @@
  */
 
 #include <err.h>
+#include <libeot/libeot.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sys/stat.h>
-
-#include <libeot/libeot.h>
 
 #include "flags.h"
 #include "writeFontFile.h"
 
-void EOTprintError(enum EOTError error, FILE *out) {
+void EOTprintError(enum EOTError error, FILE *out)
+{
   switch (error) {
   case EOT_SUCCESS:
     break;
@@ -46,7 +45,8 @@ void EOTprintError(enum EOTError error, FILE *out) {
 }
 
 enum EOTError EOT2ttf_file(const uint8_t *font, unsigned fontSize,
-                           struct EOTMetadata *metadataOut, FILE *out) {
+                           struct EOTMetadata *metadataOut, FILE *out)
+{
   enum EOTError result = EOTfillMetadata(font, fontSize, metadataOut);
   if (result >= EOT_WARN) {
     EOTprintError(result, stderr);
@@ -66,7 +66,8 @@ enum EOTError EOT2ttf_file(const uint8_t *font, unsigned fontSize,
 
 enum EOTError EOT2ttf_buffer(const uint8_t *font, unsigned fontSize,
                              struct EOTMetadata *metadataOut, uint8_t **fontOut,
-                             unsigned *fontSizeOut) {
+                             unsigned *fontSizeOut)
+{
   enum EOTError result = EOTfillMetadata(font, fontSize, metadataOut);
   if (result >= EOT_WARN) {
     EOTprintError(result, stderr);

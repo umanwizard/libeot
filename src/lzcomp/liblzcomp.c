@@ -3,11 +3,10 @@
  * version 2.0. For full details, see the file LICENSE
  */
 
+#include <libeot/libeot.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <libeot/libeot.h>
 
 #include "../util/stream.h"
 #include "AHUFF.H"
@@ -16,12 +15,14 @@
 #include "LZCOMP.H"
 #include "MTXMEM.H"
 
-unsigned be24ToCpu(const uint8_t *buf) {
+unsigned be24ToCpu(const uint8_t *buf)
+{
   return ((unsigned)buf[2]) | (((unsigned)buf[1]) << 8) |
          (((unsigned)buf[0]) << 16);
 }
 enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut,
-                        unsigned *bufSizesOut) {
+                        unsigned *bufSizesOut)
+{
   for (unsigned i = 0; i < 3; ++i) {
     bufsOut[i] = NULL;
   }
@@ -70,7 +71,8 @@ CLEANUP:
 }
 #ifdef LZCOMP_MAIN
 void usage(char *arg) { fprintf(stderr, "Usage: %s font.mtx font.ctf\n", arg); }
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   if (argc != 3) {
     usage(argv[0]);
     return 1;

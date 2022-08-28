@@ -3,16 +3,17 @@
  * version 2.0. For full details, see the file LICENSE
  */
 
+#include "SFNTContainer.h"
+
+#include <libeot/libeot.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <libeot/libeot.h>
-
 #include "../util/stream.h"
-#include "SFNTContainer.h"
 
-enum EOTError reserveTables(struct SFNTContainer *ctr, unsigned num) {
+enum EOTError reserveTables(struct SFNTContainer *ctr, unsigned num)
+{
   if (ctr->_numTablesReserved >= num) {
     return EOT_SUCCESS;
   }
@@ -25,7 +26,8 @@ enum EOTError reserveTables(struct SFNTContainer *ctr, unsigned num) {
   return EOT_SUCCESS;
 }
 
-enum EOTError constructContainer(struct SFNTContainer **out) {
+enum EOTError constructContainer(struct SFNTContainer **out)
+{
   *out = (struct SFNTContainer *)malloc(sizeof(struct SFNTContainer));
   if (!out) {
     return EOT_CANT_ALLOCATE_MEMORY;
@@ -36,12 +38,14 @@ enum EOTError constructContainer(struct SFNTContainer **out) {
   return EOT_SUCCESS;
 }
 
-void _freeTable(struct SFNTTable *tbl) {
+void _freeTable(struct SFNTTable *tbl)
+{
   free(tbl->buf);
   tbl->buf = NULL;
 }
 
-void freeContainer(struct SFNTContainer *ctr) {
+void freeContainer(struct SFNTContainer *ctr)
+{
   for (unsigned i = 0; i < ctr->numTables; ++i) {
     _freeTable(ctr->tables + i);
   }
@@ -50,7 +54,8 @@ void freeContainer(struct SFNTContainer *ctr) {
 }
 
 enum StreamResult _writeTblCheckingSum(struct SFNTTable *tbl,
-                                       struct Stream *out) {
+                                       struct Stream *out)
+{
   tbl->checksum = 0;
   tbl->offset = out->pos;
   struct Stream tblStream = constructStream(tbl->buf, tbl->bufSize);
@@ -74,7 +79,8 @@ enum StreamResult _writeTblCheckingSum(struct SFNTTable *tbl,
 }
 
 enum StreamResult _writeTableDirectory(struct SFNTContainer *ctr,
-                                       struct Stream *out) {
+                                       struct Stream *out)
+{
   enum StreamResult sResult;
   for (unsigned i = 0; i < ctr->numTables; ++i) {
     struct SFNTTable *tbl = &ctr->tables[i];
@@ -89,7 +95,8 @@ enum StreamResult _writeTableDirectory(struct SFNTContainer *ctr,
 }
 
 /* log_2(largest power of 2 <= n) */
-unsigned _lgflr(unsigned n) {
+unsigned _lgflr(unsigned n)
+{
   unsigned ret = 0;
   while (n > 1) {
     n /= 2;
@@ -99,7 +106,8 @@ unsigned _lgflr(unsigned n) {
 }
 
 /* largest power of 2 <= n */
-unsigned _maxpw(unsigned n) {
+unsigned _maxpw(unsigned n)
+{
   unsigned ret = 1;
   while (n > 1) {
     ret *= 2;
@@ -109,7 +117,8 @@ unsigned _maxpw(unsigned n) {
 }
 
 enum StreamResult _writeOffsetTable(struct SFNTContainer *ctr,
-                                    struct Stream *out) {
+                                    struct Stream *out)
+{
   enum StreamResult sResult;
   uint32_t scalerType = 0x00010000; /* magical number from TTF standard */
   uint16_t numTables = (uint16_t)(ctr->numTables);
@@ -124,11 +133,13 @@ enum StreamResult _writeOffsetTable(struct SFNTContainer *ctr,
   return EOT_STREAM_OK;
 }
 
-unsigned _getTableDirectorySize(struct SFNTContainer *ctr) {
+unsigned _getTableDirectorySize(struct SFNTContainer *ctr)
+{
   return 16 * ctr->numTables;
 }
 
-unsigned _getRequiredSize(struct SFNTContainer *ctr) {
+unsigned _getRequiredSize(struct SFNTContainer *ctr)
+{
   unsigned ret = 12; /* for offset table */
   ret += _getTableDirectorySize(ctr);
   for (unsigned i = 0; i < ctr->numTables; ++i) {
@@ -139,7 +150,8 @@ unsigned _getRequiredSize(struct SFNTContainer *ctr) {
 }
 
 enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf,
-                            unsigned *outSize) {
+                            unsigned *outSize)
+{
   struct Stream s = constructStream(NULL, 0);
   unsigned requiredSize = _getRequiredSize(ctr);
   enum StreamResult sResult = reserve(&s, requiredSize);
@@ -165,8 +177,8 @@ enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf,
     chk += tbl->checksum;
   }
   if (head == NULL) {
-    returnedStatus = EOT_LOGIC_ERROR; /* should have already caught the lack of
-                                         a head table! */
+    returnedStatus = EOT_LOGIC_ERROR; /* should have already caught the lack
+                                         of a head table! */
     goto CLEANUP;
   }
   seekAbsolute(&s, tableDirectoryOffset);
@@ -195,7 +207,8 @@ CLEANUP:
 }
 
 enum EOTError addTable(struct SFNTContainer *ctr, const char *tag,
-                       struct SFNTTable **newTableOut) {
+                       struct SFNTTable **newTableOut)
+{
   if (ctr->numTables == ctr->_numTablesReserved) {
     enum EOTError err = reserveTables(ctr, ctr->numTables * 2);
     if (err != EOT_SUCCESS) {
@@ -216,7 +229,8 @@ enum EOTError addTable(struct SFNTContainer *ctr, const char *tag,
 #define CHK_RD2(sRes)                                                          \
   if (sRes != EOT_STREAM_OK)                                                   \
   return EOT_CORRUPT_FILE
-enum EOTError loadTableFromStream(struct SFNTTable *tbl, struct Stream *s) {
+enum EOTError loadTableFromStream(struct SFNTTable *tbl, struct Stream *s)
+{
   enum StreamResult sResult = seekAbsolute(s, tbl->offset);
   CHK_RD2(sResult);
   tbl->buf = (uint8_t *)malloc(tbl->bufSize);

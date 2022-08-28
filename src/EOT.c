@@ -3,23 +3,25 @@
  * version 2.0. For full details, see the file LICENSE
  */
 
+#include <libeot/libeot.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <libeot/libeot.h>
-
 const uint16_t EDITING_MASK = 0x0008;
 
-uint32_t EOTreadU32LE(const uint8_t *bytes) {
+uint32_t EOTreadU32LE(const uint8_t *bytes)
+{
   return (uint32_t)bytes[0] | ((uint32_t)bytes[1] << 8) |
          ((uint32_t)bytes[2] << 16) | ((uint32_t)bytes[3] << 24);
 }
 
-uint16_t EOTreadU16LE(const uint8_t *bytes) {
+uint16_t EOTreadU16LE(const uint8_t *bytes)
+{
   return (uint16_t)bytes[0] | ((uint16_t)bytes[1] << 8);
 }
 
-unsigned EOTgetMetadataLength(const uint8_t *bytes) {
+unsigned EOTgetMetadataLength(const uint8_t *bytes)
+{
   uint32_t totalLength = EOTreadU32LE(bytes);
   uint32_t fontLength = EOTreadU32LE(bytes + 4);
   return totalLength - fontLength;
@@ -27,7 +29,8 @@ unsigned EOTgetMetadataLength(const uint8_t *bytes) {
 
 enum EOTError EOTgetString(const uint8_t **scanner, const uint8_t *begin,
                            unsigned bytesLength, uint16_t *size,
-                           uint16_t **string) {
+                           uint16_t **string)
+{
   if (*string) {
     free(*string);
   }
@@ -59,7 +62,8 @@ enum EOTError EOTgetString(const uint8_t **scanner, const uint8_t *begin,
 
 enum EOTError EOTgetByteArray(const uint8_t **scanner, const uint8_t *begin,
                               unsigned bytesLength, uint32_t *size,
-                              uint8_t **array) {
+                              uint8_t **array)
+{
   if (*array) {
     free(*array);
   }
@@ -85,7 +89,8 @@ enum EOTError EOTgetByteArray(const uint8_t **scanner, const uint8_t *begin,
   return EOT_SUCCESS;
 }
 
-void EOTfreeMetadata(struct EOTMetadata *d) {
+void EOTfreeMetadata(struct EOTMetadata *d)
+{
   if (d->familyName) {
     free(d->familyName);
   }
@@ -133,7 +138,8 @@ enum EOTError EOTfillMetadataSpecifyingVersion(const uint8_t *bytes,
                                                unsigned bytesLength,
                                                struct EOTMetadata *out,
                                                enum EOTVersion version,
-                                               int currIndex) {
+                                               int currIndex)
+{
   out->version = version;
   const uint8_t *scanner = bytes;
   EOT_ENSURE_SCANNER(4);
@@ -223,7 +229,8 @@ enum EOTError EOTfillMetadataSpecifyingVersion(const uint8_t *bytes,
 }
 
 enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
-                              struct EOTMetadata *out) {
+                              struct EOTMetadata *out)
+{
   struct EOTMetadata zero = {0};
   *out = zero;
   const uint8_t *scanner = bytes;
@@ -289,13 +296,14 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
 }
 
 /* Please think twice before circumventing this function.
- * Does your personal sense of morality really let you take others' work without
- * their permission?
+ * Does your personal sense of morality really let you take others' work
+ * without their permission?
  *
  * I'm not suggesting any system of morality is right or wrong;
  * I'm merely asking that you reflect on it before changing anything here.
  */
-bool EOTcanLegallyEdit(const struct EOTMetadata *metadata) {
+bool EOTcanLegallyEdit(const struct EOTMetadata *metadata)
+{
   return metadata->permissions == 0 ||
          ((metadata->permissions & EDITING_MASK) != 0);
 }

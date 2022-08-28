@@ -14,7 +14,8 @@
 #include "ERRCODES.H"
 
 /* Writes out <numberOfBits> to the output memory */
-void MTX_BITIO_WriteValue(BITIO *t, unsigned long value, long numberOfBits) {
+void MTX_BITIO_WriteValue(BITIO *t, unsigned long value, long numberOfBits)
+{
   register long i;
   for (i = numberOfBits - 1; i >= 0; i--) {
     MTX_BITIO_output_bit(t, (unsigned long)(value & (1L << i)));
@@ -22,7 +23,8 @@ void MTX_BITIO_WriteValue(BITIO *t, unsigned long value, long numberOfBits) {
 }
 
 /* Reads out <numberOfBits> from the input memory */
-unsigned long MTX_BITIO_ReadValue(BITIO *t, long numberOfBits) {
+unsigned long MTX_BITIO_ReadValue(BITIO *t, long numberOfBits)
+{
   unsigned long value;
   long i;
 
@@ -36,7 +38,8 @@ unsigned long MTX_BITIO_ReadValue(BITIO *t, long numberOfBits) {
 }
 
 /* Read one bit from the input memory */
-short MTX_BITIO_input_bit(register BITIO *t) {
+short MTX_BITIO_input_bit(register BITIO *t)
+{
   /*assert( t->ReadOrWrite == 'r' ); */
   if (t->input_bit_count-- == 0) {
     t->input_bit_buffer = t->mem_bytes[t->mem_index++];
@@ -51,7 +54,8 @@ short MTX_BITIO_input_bit(register BITIO *t) {
 }
 
 /* Write one bit to the output memory */
-void MTX_BITIO_output_bit(register BITIO *t, unsigned long bit) {
+void MTX_BITIO_output_bit(register BITIO *t, unsigned long bit)
+{
   /*assert( t->ReadOrWrite == 'w' ); */
   t->output_bit_buffer <<= 1;
   if (bit)
@@ -70,7 +74,8 @@ void MTX_BITIO_output_bit(register BITIO *t, unsigned long bit) {
 }
 
 /* Flush any remaining bits to output memory before finnishing */
-void MTX_BITIO_flush_bits(BITIO *t) {
+void MTX_BITIO_flush_bits(BITIO *t)
+{
   assert(t->ReadOrWrite == 'w');
   if (t->output_bit_count > 0) {
     if (t->mem_index >= t->mem_size) {
@@ -86,25 +91,29 @@ void MTX_BITIO_flush_bits(BITIO *t) {
 }
 
 /* Returns the memory buffer pointer */
-unsigned char *MTX_BITIO_GetMemoryPointer(BITIO *t) {
+unsigned char *MTX_BITIO_GetMemoryPointer(BITIO *t)
+{
   return t->mem_bytes; /******/
 }
 
 /* Returns number of bytes written */
-long MTX_BITIO_GetBytesOut(BITIO *t) {
+long MTX_BITIO_GetBytesOut(BITIO *t)
+{
   assert(t->ReadOrWrite == 'w');
   return t->bytes_out; /******/
 }
 
 /* Returns number of bytes read */
-long MTX_BITIO_GetBytesIn(BITIO *t) {
+long MTX_BITIO_GetBytesIn(BITIO *t)
+{
   assert(t->ReadOrWrite == 'r');
   return t->bytes_out; /******/
 }
 
 /* Constructor for Memory based incarnation */
 BITIO *MTX_BITIO_Create(MTX_MemHandler *mem, void *memPtr, long memSize,
-                        const char param) {
+                        const char param)
+{
   BITIO *t = (BITIO *)MTX_mem_malloc(mem, sizeof(BITIO));
   t->mem = mem;
 
@@ -125,7 +134,8 @@ BITIO *MTX_BITIO_Create(MTX_MemHandler *mem, void *memPtr, long memSize,
 }
 
 /* Destructor */
-void MTX_BITIO_Destroy(BITIO *t) {
+void MTX_BITIO_Destroy(BITIO *t)
+{
   if (t->ReadOrWrite == 'w') {
     MTX_BITIO_flush_bits(t);
     assert(t->mem_index == t->bytes_out);

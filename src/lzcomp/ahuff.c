@@ -15,7 +15,8 @@
 #include "MTXMEM.H"
 
 /* Returns number of bits used in the positive number x */
-long MTX_AHUFF_BitsUsed(register long x) {
+long MTX_AHUFF_BitsUsed(register long x)
+{
   register long n;
 
   assert(x >= 0);
@@ -118,7 +119,8 @@ long MTX_AHUFF_BitsUsed(register long x) {
 /* This is only needed for debugging, but if any changes */
 /* are made to the code, then we need to ensure that */
 /* this method still accepts the tree. */
-static void check_tree(AHUFF *t) {
+static void check_tree(AHUFF *t)
+{
   long i, j;
   short a, b, diff;
   register nodeType *tree = t->tree;
@@ -128,8 +130,8 @@ static void check_tree(AHUFF *t) {
   for (i = ROOT; i < t->range; i++) {
     if (tree[i].code < 0) {
       if (tree[tree[i].left].up != i) {
-        /*cout << i << "," << tree[i].left << "," << tree[tree[i].left].up <<
-         * endl; */
+        /*cout << i << "," << tree[i].left << "," <<
+         * tree[tree[i].left].up << endl; */
 #ifndef _WINDOWS
         printf("%ld , %ld , %ld\n", (long)i, (long)tree[i].left,
                (long)tree[tree[i].left].up);
@@ -145,11 +147,12 @@ static void check_tree(AHUFF *t) {
 #ifndef _WINDOWS
       if (tree[i].weight !=
           tree[tree[i].left].weight + tree[tree[i].right].weight) {
-        /*cout << i << "," << tree[i].left << "," << tree[i].right << endl; */
+        /*cout << i << "," << tree[i].left << "," << tree[i].right <<
+         * endl; */
         printf("%ld , %ld , %ld\n", (long)i, (long)tree[i].left,
                (long)tree[i].right);
-        /*cout << tree[i].weight << "," << tree[tree[i].left].weight << "," <<
-         * tree[tree[i].right].weight << endl; */
+        /*cout << tree[i].weight << "," << tree[tree[i].left].weight <<
+         * "," << tree[tree[i].right].weight << endl; */
         printf("%ld , %ld , %ld\n", (long)tree[i].weight,
                (long)tree[tree[i].left].weight,
                (long)tree[tree[i].right].weight);
@@ -183,7 +186,8 @@ static void check_tree(AHUFF *t) {
 #endif /* DEBUG */
 
 /* Swaps the nodes a and b */
-static void SwapNodes(AHUFF *t, register short a, register short b) {
+static void SwapNodes(AHUFF *t, register short a, register short b)
+{
   short code;
   short upa, upb;
   nodeType tNode;
@@ -245,7 +249,8 @@ static void SwapNodes(AHUFF *t, register short a, register short b) {
 }
 
 /* Updates the weight for index a, and it's parents */
-static void UpdateWeight(register AHUFF *t, register short a) {
+static void UpdateWeight(register AHUFF *t, register short a)
+{
   register nodeType *tree = t->tree;
   const short ROOT = 1;
 
@@ -282,7 +287,8 @@ static void UpdateWeight(register AHUFF *t, register short a) {
 
 /* Recursively sets the parent weight equal to the sum of the two chilren's
  * weights. */
-static long init_weight(AHUFF *t, int a) {
+static long init_weight(AHUFF *t, int a)
+{
   register nodeType *tree = t->tree;
   if (tree[a].code < 0) {
     /* Internal node */
@@ -294,7 +300,8 @@ static long init_weight(AHUFF *t, int a) {
 
 #ifdef OLD
 /* Maps a symbol code into the corresponding index */
-static short MapCodeToIndex(AHUFF *t, register short code) {
+static short MapCodeToIndex(AHUFF *t, register short code)
+{
   register short index = t->symbolIndex[code];
   assert(t->tree[index].code == code);
 
@@ -306,7 +313,8 @@ static short MapCodeToIndex(AHUFF *t, register short code) {
 /* const short MAXWEIGHT = 30000; Max weight count before table reset */
 
 /* Constructor */
-AHUFF *MTX_AHUFF_Create(MTX_MemHandler *mem, BITIO *bio, short rangeIn) {
+AHUFF *MTX_AHUFF_Create(MTX_MemHandler *mem, BITIO *bio, short rangeIn)
+{
   short i, limit, range;
   long j;
   const short ROOT = 1;
@@ -390,7 +398,8 @@ AHUFF *MTX_AHUFF_Create(MTX_MemHandler *mem, BITIO *bio, short rangeIn) {
 }
 
 /* Deconstructor */
-void MTX_AHUFF_Destroy(AHUFF *t) {
+void MTX_AHUFF_Destroy(AHUFF *t)
+{
   MTX_mem_free(t->mem, t->symbolIndex);
   MTX_mem_free(t->mem, t->tree);
   MTX_mem_free(t->mem, t);
@@ -398,7 +407,8 @@ void MTX_AHUFF_Destroy(AHUFF *t) {
 
 /* Writes the symbol to the file using adaptive Huffman encoding */
 /* Jusat like but with writeToFile == false assumed */
-long MTX_AHUFF_WriteSymbolCost(AHUFF *t, short symbol) {
+long MTX_AHUFF_WriteSymbolCost(AHUFF *t, short symbol)
+{
   register nodeType *tree = t->tree;
   register short a;
   register int sp = 0;
@@ -416,7 +426,8 @@ long MTX_AHUFF_WriteSymbolCost(AHUFF *t, short symbol) {
 }
 
 /* Writes the symbol to the file using adaptive Huffman encoding */
-void MTX_AHUFF_WriteSymbol(AHUFF *t, short symbol) {
+void MTX_AHUFF_WriteSymbol(AHUFF *t, short symbol)
+{
   register nodeType *tree = t->tree;
   register short a, aa;
   register int sp = 0;
@@ -444,7 +455,8 @@ void MTX_AHUFF_WriteSymbol(AHUFF *t, short symbol) {
 }
 
 /* Reads the symbol from the file */
-short MTX_AHUFF_ReadSymbol(AHUFF *t) {
+short MTX_AHUFF_ReadSymbol(AHUFF *t)
+{
   const short ROOT = 1;
   register nodeType *tree = t->tree;
   register short a = ROOT, symbol;

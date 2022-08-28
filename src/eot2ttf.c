@@ -4,24 +4,24 @@
  */
 
 #include <err.h>
+#include <fcntl.h>
+#include <libeot/libeot.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-
-#include <libeot/libeot.h>
 
 #include "flags.h"
 #include "writeFontFile.h"
 
-void usage(char *progName) {
+void usage(char *progName)
+{
   fprintf(stderr, "Usage: %s myfont.eot out.ttf\n", progName);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   if (argc != 3) {
     usage(argv[0]);
     return 1;

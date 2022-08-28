@@ -3,12 +3,11 @@
  * version 2.0. For full details, see the file LICENSE
  */
 
+#include <libeot/libeot.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <libeot/libeot.h>
 
 #include "ctf/parseCTF.h"
 #include "lzcomp/liblzcomp.h"
@@ -17,8 +16,8 @@ const uint8_t ENCRYPTION_KEY = 0x50;
 
 enum EOTError writeFontBuffer(const uint8_t *font, unsigned fontSize,
                               bool compressed, bool encrypted,
-                              uint8_t **finalOutBuffer,
-                              unsigned *finalFontSize) {
+                              uint8_t **finalOutBuffer, unsigned *finalFontSize)
+{
   enum EOTError result;
   uint8_t *buf = (uint8_t *)malloc(fontSize);
   for (unsigned i = 0; i < fontSize; ++i) {
@@ -75,7 +74,8 @@ CLEANUP:
 }
 
 enum EOTError writeFontFile(const uint8_t *font, unsigned fontSize,
-                            bool compressed, bool encrypted, FILE *outFile) {
+                            bool compressed, bool encrypted, FILE *outFile)
+{
   enum EOTError result;
   uint8_t *finalBuf = NULL;
   unsigned finalFontSize;

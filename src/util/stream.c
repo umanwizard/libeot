@@ -4,11 +4,13 @@
  */
 
 #include "stream.h"
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-enum StreamResult BEReadRestAsU32(struct Stream *s, uint32_t *out) {
+enum StreamResult BEReadRestAsU32(struct Stream *s, uint32_t *out)
+{
   if (s->pos >= s->size) {
     return EOT_NOT_ENOUGH_DATA;
   }
@@ -35,11 +37,13 @@ enum StreamResult BEReadRestAsU32(struct Stream *s, uint32_t *out) {
   return EOT_STREAM_OK;
 }
 
-struct Stream constructStream(uint8_t *buf, unsigned size) {
+struct Stream constructStream(uint8_t *buf, unsigned size)
+{
   return constructStream2(buf, size, size);
 }
 
-struct Stream constructStream2(uint8_t *buf, unsigned size, unsigned reserved) {
+struct Stream constructStream2(uint8_t *buf, unsigned size, unsigned reserved)
+{
   struct Stream ret;
   ret.buf = buf;
   ret.size = size;
@@ -49,7 +53,8 @@ struct Stream constructStream2(uint8_t *buf, unsigned size, unsigned reserved) {
   return ret;
 }
 
-enum StreamResult BEReadU8(struct Stream *s, uint8_t *out) {
+enum StreamResult BEReadU8(struct Stream *s, uint8_t *out)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -60,11 +65,13 @@ enum StreamResult BEReadU8(struct Stream *s, uint8_t *out) {
   return EOT_STREAM_OK;
 }
 
-enum StreamResult BEReadChar(struct Stream *s, char *out) {
+enum StreamResult BEReadChar(struct Stream *s, char *out)
+{
   return BEReadU8(s, (uint8_t *)out);
 }
 
-enum StreamResult BEReadU16(struct Stream *s, uint16_t *out) {
+enum StreamResult BEReadU16(struct Stream *s, uint16_t *out)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -76,7 +83,8 @@ enum StreamResult BEReadU16(struct Stream *s, uint16_t *out) {
   return EOT_STREAM_OK;
 }
 
-enum StreamResult BEReadU24(struct Stream *s, uint32_t *out) {
+enum StreamResult BEReadU24(struct Stream *s, uint32_t *out)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -90,7 +98,8 @@ enum StreamResult BEReadU24(struct Stream *s, uint32_t *out) {
   return EOT_STREAM_OK;
 }
 
-enum StreamResult BEReadU32(struct Stream *s, uint32_t *out) {
+enum StreamResult BEReadU32(struct Stream *s, uint32_t *out)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -105,29 +114,35 @@ enum StreamResult BEReadU32(struct Stream *s, uint32_t *out) {
   return EOT_STREAM_OK;
 }
 
-enum StreamResult BEReadS8(struct Stream *s, int8_t *out) {
+enum StreamResult BEReadS8(struct Stream *s, int8_t *out)
+{
   return BEReadU8(s, (uint8_t *)out);
 }
 
-enum StreamResult BEReadS16(struct Stream *s, int16_t *out) {
+enum StreamResult BEReadS16(struct Stream *s, int16_t *out)
+{
   return BEReadU16(s, (uint16_t *)out);
 }
 
-enum StreamResult BEReadS24(struct Stream *s, int32_t *out) {
+enum StreamResult BEReadS24(struct Stream *s, int32_t *out)
+{
   return BEReadU24(s, (uint32_t *)out);
 }
 
-enum StreamResult BEReadS32(struct Stream *s, int32_t *out) {
+enum StreamResult BEReadS32(struct Stream *s, int32_t *out)
+{
   return BEReadU32(s, (uint32_t *)out);
 }
 
-enum StreamResult BEPeekU8(struct Stream *s, uint8_t *out) {
+enum StreamResult BEPeekU8(struct Stream *s, uint8_t *out)
+{
   enum StreamResult ret1 = BEReadU8(s, out);
   --s->pos;
   return ret1;
 }
 
-enum StreamResult seekRelative(struct Stream *s, int offset) {
+enum StreamResult seekRelative(struct Stream *s, int offset)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -142,7 +157,8 @@ enum StreamResult seekRelative(struct Stream *s, int offset) {
   return EOT_STREAM_OK;
 }
 
-enum StreamResult seekRelativeThroughReserve(struct Stream *s, int offset) {
+enum StreamResult seekRelativeThroughReserve(struct Stream *s, int offset)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -157,7 +173,8 @@ enum StreamResult seekRelativeThroughReserve(struct Stream *s, int offset) {
   return EOT_STREAM_OK;
 }
 
-enum StreamResult seekAbsolute(struct Stream *s, unsigned pos) {
+enum StreamResult seekAbsolute(struct Stream *s, unsigned pos)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -168,7 +185,8 @@ enum StreamResult seekAbsolute(struct Stream *s, unsigned pos) {
   return EOT_STREAM_OK;
 }
 
-enum StreamResult seekAbsoluteThroughReserve(struct Stream *s, unsigned pos) {
+enum StreamResult seekAbsoluteThroughReserve(struct Stream *s, unsigned pos)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -179,7 +197,8 @@ enum StreamResult seekAbsoluteThroughReserve(struct Stream *s, unsigned pos) {
   return EOT_STREAM_OK;
 }
 
-enum StreamResult reserve(struct Stream *s, unsigned toReserve) {
+enum StreamResult reserve(struct Stream *s, unsigned toReserve)
+{
   if (s->reserved >= toReserve) {
     return EOT_STREAM_OK;
   }
@@ -197,7 +216,8 @@ enum StreamResult reserve(struct Stream *s, unsigned toReserve) {
 #define FIX_SIZE(s)                                                            \
   if (s->pos > s->size)                                                        \
   s->size = s->pos
-enum StreamResult BEWriteU8(struct Stream *s, uint8_t in) {
+enum StreamResult BEWriteU8(struct Stream *s, uint8_t in)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -206,7 +226,8 @@ enum StreamResult BEWriteU8(struct Stream *s, uint8_t in) {
   FIX_SIZE(s);
   return EOT_STREAM_OK;
 }
-enum StreamResult BEWriteU16(struct Stream *s, uint16_t in) {
+enum StreamResult BEWriteU16(struct Stream *s, uint16_t in)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -216,7 +237,8 @@ enum StreamResult BEWriteU16(struct Stream *s, uint16_t in) {
   FIX_SIZE(s);
   return EOT_STREAM_OK;
 }
-enum StreamResult BEWriteU24(struct Stream *s, uint32_t in) {
+enum StreamResult BEWriteU24(struct Stream *s, uint32_t in)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -230,7 +252,8 @@ enum StreamResult BEWriteU24(struct Stream *s, uint32_t in) {
   FIX_SIZE(s);
   return EOT_STREAM_OK;
 }
-enum StreamResult BEWriteU32(struct Stream *s, uint32_t in) {
+enum StreamResult BEWriteU32(struct Stream *s, uint32_t in)
+{
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -242,12 +265,14 @@ enum StreamResult BEWriteU32(struct Stream *s, uint32_t in) {
   FIX_SIZE(s);
   return EOT_STREAM_OK;
 }
-enum StreamResult BEWriteS16(struct Stream *s, int16_t in) {
+enum StreamResult BEWriteS16(struct Stream *s, int16_t in)
+{
   return BEWriteU16(s, (uint16_t)in);
 }
 
 enum StreamResult streamCopy(struct Stream *sIn, struct Stream *sOut,
-                             unsigned length) {
+                             unsigned length)
+{
   if (sIn->bitPos != 0 || sOut->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
@@ -264,7 +289,8 @@ enum StreamResult streamCopy(struct Stream *sIn, struct Stream *sOut,
 }
 
 /* FIXME: This could be made A LOT faster. I am too lazy to figure out how. */
-enum StreamResult readNBits(struct Stream *s, uint32_t *out, unsigned n) {
+enum StreamResult readNBits(struct Stream *s, uint32_t *out, unsigned n)
+{
   const uint8_t masks[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
   if (n > 32) {
     return EOT_VALUE_OUT_OF_BOUNDS;
@@ -286,7 +312,8 @@ enum StreamResult readNBits(struct Stream *s, uint32_t *out, unsigned n) {
 }
 
 enum StreamResult BEcheckSum32(struct Stream *s, uint32_t *out,
-                               unsigned beginPos, unsigned endPos) {
+                               unsigned beginPos, unsigned endPos)
+{
   if (beginPos > endPos) {
     return EOT_VALUE_OUT_OF_BOUNDS;
   }

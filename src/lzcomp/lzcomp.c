@@ -31,7 +31,8 @@ const long max_2Byte_Dist = 512;
 
 /* Sets the maximum number of distance ranges used, based on the <length>
  * parameter */
-static void SetDistRange(LZCOMP *t, long length) {
+static void SetDistRange(LZCOMP *t, long length)
+{
   const long len_min = 2;
   const long len_min3 = 3;
   const long len_width = 3;
@@ -60,7 +61,8 @@ static void SetDistRange(LZCOMP *t, long length) {
 #define GetNumberofDistRanges(distance)                                        \
   ((MTX_AHUFF_BitsUsed((distance)-dist_min) + dist_width - 1) / dist_width)
 #else
-static long GetNumberofDistRanges(register long distance) {
+static long GetNumberofDistRanges(register long distance)
+{
   register long distRanges, bitsNeeded;
   const long len_min = 2;
   const long len_min3 = 3;
@@ -91,7 +93,8 @@ static long GetNumberofDistRanges(register long distance) {
 /* Encodes the length <value> and the number of distance ranges used for this
  * distance */
 static void EncodeLength(LZCOMP *t, long value, long distance,
-                         long numDistRanges) {
+                         long numDistRanges)
+{
   long i, bitsUsed, symbol;
   unsigned long mask = 1;
   const long len_min = 2;
@@ -161,7 +164,8 @@ static void EncodeLength(LZCOMP *t, long value, long distance,
 
 /* Same as EncodeLength, except it only computes the cost */
 static long EncodeLengthCost(LZCOMP *t, long value, long distance,
-                             long numDistRanges) {
+                             long numDistRanges)
+{
   long i, bitsUsed, symbol, count;
   unsigned long mask = 1;
   const long len_min = 2;
@@ -235,7 +239,8 @@ static long EncodeLengthCost(LZCOMP *t, long value, long distance,
 #ifdef DECOMPRESS_ON
 /* Decodes the length, and also returns the number of distance ranges used for
  * the distance */
-static long DecodeLength(LZCOMP *t, int symbol, long *numDistRanges) {
+static long DecodeLength(LZCOMP *t, int symbol, long *numDistRanges)
+{
   unsigned long mask;
   long done, bits, firstTime = symbol >= 0, value = 0;
   const long len_min = 2;
@@ -274,7 +279,8 @@ static long DecodeLength(LZCOMP *t, int symbol, long *numDistRanges) {
 
 #ifdef COMPRESS_ON
 /* Encodes the distance */
-static void EncodeDistance2(LZCOMP *t, long value, long distRanges) {
+static void EncodeDistance2(LZCOMP *t, long value, long distRanges)
+{
   register long i;
   const long len_min = 2;
   const long len_min3 = 3;
@@ -295,7 +301,8 @@ static void EncodeDistance2(LZCOMP *t, long value, long distRanges) {
 }
 
 /* Same as EncodeDistance2, except it only computes the cost */
-static long EncodeDistance2Cost(LZCOMP *t, long value, long distRanges) {
+static long EncodeDistance2Cost(LZCOMP *t, long value, long distRanges)
+{
   register long i, count = 0;
   const long len_min = 2;
   const long len_min3 = 3;
@@ -321,7 +328,8 @@ static long EncodeDistance2Cost(LZCOMP *t, long value, long distRanges) {
 #ifdef COMPRESS_ON
 
 /* Frees all nodes from the hash */
-static void FreeAllHashNodes(LZCOMP *t) {
+static void FreeAllHashNodes(LZCOMP *t)
+{
   register hasnNode *nextNodeBlock;
   const short hNodeAllocSize = 4095;
 
@@ -333,7 +341,8 @@ static void FreeAllHashNodes(LZCOMP *t) {
 }
 
 /* Returns a new hash node */
-static hasnNode *GetNewHashNode(LZCOMP *t) {
+static hasnNode *GetNewHashNode(LZCOMP *t)
+{
   register hasnNode *hNode;
   const short hNodeAllocSize = 4095;
 
@@ -359,7 +368,8 @@ static hasnNode *GetNewHashNode(LZCOMP *t) {
 }
 
 /* Updates our model, for the byte pointed to by <index> */
-static void UpdateModel(LZCOMP *t, long index) {
+static void UpdateModel(LZCOMP *t, long index)
+{
   hasnNode *hNode;
   unsigned char c = t->ptr1[index];
   long pos;
@@ -382,7 +392,8 @@ static void UpdateModel(LZCOMP *t, long index) { ; }
 
 #ifdef DECOMPRESS_ON
 /* Decodes the distance */
-static long DecodeDistance2(LZCOMP *t, long distRanges) {
+static long DecodeDistance2(LZCOMP *t, long distRanges)
+{
   long i, bits, value = 0;
   const long len_min = 2;
   const long len_min3 = 3;
@@ -411,15 +422,16 @@ static long DecodeDistance2(LZCOMP *t, long distRanges) {
  * if compress is true then it initializes for compression, otherwise
  * it initializes only for decompression.
  */
-static void InitializeModel(LZCOMP *t, int compress) {
+static void InitializeModel(LZCOMP *t, int compress)
+{
   long i, j, k;
   const long preLoadSize = 2 * 32 * 96 + 4 * 256;
 
 #ifdef COMPRESS_ON
   if (compress) {
     unsigned long hashSize;
-    /*t->hashTable         = new hasnNode * [ 0x10000 ]; assert( t->hashTable !=
-    NULL ); t->hashTable         = (hasnNode **)MTX_mem_malloc( t->mem,
+    /*t->hashTable         = new hasnNode * [ 0x10000 ]; assert( t->hashTable
+    != NULL ); t->hashTable         = (hasnNode **)MTX_mem_malloc( t->mem,
     sizeof(hasnNode *) * 0x10000 ); */
     hashSize = (unsigned long)sizeof_hasnNodePtr * 0x10000;
     t->hashTable = (hasnNode **)MTX_mem_malloc(t->mem, hashSize);
@@ -475,7 +487,8 @@ static void InitializeModel(LZCOMP *t, int compress) {
 #ifdef COMPRESS_ON
 /* Finds the best copy item match */
 static long Findmatch(register LZCOMP *t, long index, long *bestDist,
-                      long *gainOut, long *costPerByte) {
+                      long *gainOut, long *costPerByte)
+{
   long length, bestLength = 0, bestGain = 0;
   long maxLen, i, distance, bestCopyCost = 0, bestDistance = 0;
   long copyCost, literalCost, distRanges, gain;
@@ -535,9 +548,11 @@ static long Findmatch(register LZCOMP *t, long index, long *bestDist,
         continue; /******/
       assert(t->ptr1[i + 0] == ptr2[0]);
       assert(t->ptr1[i + 1] == ptr2[1]);
-      /* We already have two matching bytes, so start at two instead of zero !!
+      /* We already have two matching bytes, so start at two instead of
+       * zero !!
        */
-      /* for ( length = 0; i < index && length+index < t->maxIndex; i++ ) */
+      /* for ( length = 0; i < index && length+index < t->maxIndex; i++ )
+       */
       i += 2;
       assert(&ptr2[maxLen - 1] < &t->ptr1[t->maxIndex]);
       for (length = 2; length < maxLen && t->ptr1[i] == ptr2[length]; i++) {
@@ -592,8 +607,8 @@ static long Findmatch(register LZCOMP *t, long index, long *bestDist,
         distRanges = GetNumberofDistRanges(distance);
         copyCost = EncodeLengthCost(t, length, distance, distRanges);
         if (literalCost - copyCost - (distRanges << 16) > bestGain) {
-          /* The if statement above conservatively assumes only one bit per
-           * range for distBitCount */
+          /* The if statement above conservatively assumes only one bit
+           * per range for distBitCount */
           copyCost += EncodeDistance2Cost(t, distance, distRanges);
           gain = literalCost - copyCost;
 
@@ -620,7 +635,8 @@ static long Findmatch(register LZCOMP *t, long index, long *bestDist,
 /* Makes a decision on whether to use a copy item, and then if it decides */
 /* to use a copy item it decides on an optimal length & distance for the copy.
  */
-static long MakeCopyDecision(LZCOMP *t, long index, long *bestDist) {
+static long MakeCopyDecision(LZCOMP *t, long index, long *bestDist)
+{
   long dist1, dist2, dist3;
   long len1, len2, len3;
   long gain1, gain2, gain3;
@@ -692,7 +708,8 @@ static long MakeCopyDecision(LZCOMP *t, long index, long *bestDist) {
 
 #ifdef COMPRESS_ON
 /* This method does the compression work */
-static void Encode(LZCOMP *t) {
+static void Encode(LZCOMP *t)
+{
   register long i, j, limit;
   long here, len, dist;
   long distRanges;
@@ -757,7 +774,8 @@ static void Encode(LZCOMP *t) {
 /* This method does the de-compression work */
 /* There is potential to save some memory in the future by uniting */
 /* dataOut and ptr1 only when the run length encoding is not used. */
-static unsigned char *Decode(register LZCOMP *t, long *size) {
+static unsigned char *Decode(register LZCOMP *t, long *size)
+{
   register int symbol;
   long j, length, distance, start, pos = 0;
   long numDistRanges;
@@ -803,8 +821,8 @@ static unsigned char *Decode(register LZCOMP *t, long *size) {
           } else {
             assert(index <= dataOutSize);
             if (index >= dataOutSize) {
-              dataOutSize += dataOutSize >>
-                             1; /* Allocate in exponentially increasing steps */
+              dataOutSize += dataOutSize >> 1; /* Allocate in exponentially
+                                                  increasing steps */
               dataOut = (unsigned char *)MTX_mem_realloc(t->mem, dataOut,
                                                          dataOutSize);
             }
@@ -879,8 +897,8 @@ static unsigned char *Decode(register LZCOMP *t, long *size) {
           } else {
             assert(index <= dataOutSize);
             if (index >= dataOutSize) {
-              dataOutSize += dataOutSize >>
-                             1; /* Allocate in exponentially increasing steps */
+              dataOutSize += dataOutSize >> 1; /* Allocate in exponentially
+                                                  increasing steps */
               dataOut = (unsigned char *)MTX_mem_realloc(t->mem, dataOut,
                                                          dataOutSize);
             }
@@ -925,7 +943,8 @@ static unsigned char *Decode(register LZCOMP *t, long *size) {
 #endif /*DECOMPRESS_ON */
 
 #ifdef COMPRESS_ON
-void *memcpyHuge(void *object2, void *object1, unsigned long size) {
+void *memcpyHuge(void *object2, void *object1, unsigned long size)
+{
   unsigned long i;
   void *object2Ptr;
   object2Ptr = object2;
@@ -936,7 +955,8 @@ void *memcpyHuge(void *object2, void *object1, unsigned long size) {
 
 /* Call this method to compress a memory area */
 unsigned char *MTX_LZCOMP_PackMemory(register LZCOMP *t, void *dataIn,
-                                     long size_in, long *sizeOut) {
+                                     long size_in, long *sizeOut)
+{
   long lengthOut;
   unsigned char *bin;
   long binSize;
@@ -1032,7 +1052,8 @@ unsigned char *MTX_LZCOMP_PackMemory(register LZCOMP *t, void *dataIn,
 /* Call this method to un-compress memory */
 unsigned char *MTX_LZCOMP_UnPackMemory(register LZCOMP *t, void *dataIn,
                                        long dataInSize, long *sizeOut,
-                                       unsigned char version) {
+                                       unsigned char version)
+{
   long maxOutSize;
   unsigned char *dataOut;
   const long len_width = 3;
@@ -1101,7 +1122,8 @@ unsigned char *MTX_LZCOMP_UnPackMemory(register LZCOMP *t, void *dataIn,
 #endif /* DECOMPRESS_ON */
 
 /* Constructor */
-LZCOMP *MTX_LZCOMP_Create1(MTX_MemHandler *mem) {
+LZCOMP *MTX_LZCOMP_Create1(MTX_MemHandler *mem)
+{
   const short hNodeAllocSize = 4095;
   LZCOMP *t = (LZCOMP *)MTX_mem_malloc(mem, sizeof(LZCOMP));
   t->mem = mem;
@@ -1118,7 +1140,8 @@ LZCOMP *MTX_LZCOMP_Create1(MTX_MemHandler *mem) {
   return t; /*****/
 }
 
-LZCOMP *MTX_LZCOMP_Create2(MTX_MemHandler *mem, long maxCopyDistance) {
+LZCOMP *MTX_LZCOMP_Create2(MTX_MemHandler *mem, long maxCopyDistance)
+{
   const long preLoadSize = 2 * 32 * 96 + 4 * 256;
   const short hNodeAllocSize = 4095;
   LZCOMP *t = (LZCOMP *)MTX_mem_malloc(mem, sizeof(LZCOMP));
@@ -1139,7 +1162,8 @@ LZCOMP *MTX_LZCOMP_Create2(MTX_MemHandler *mem, long maxCopyDistance) {
 }
 
 /* Deconstructor */
-void MTX_LZCOMP_Destroy(LZCOMP *t) {
+void MTX_LZCOMP_Destroy(LZCOMP *t)
+{
   MTX_mem_free(t->mem, t->ptr1);
 #ifdef COMPRESS_ON
   FreeAllHashNodes(t);
@@ -1152,7 +1176,8 @@ void MTX_LZCOMP_Destroy(LZCOMP *t) {
 #ifdef COMPRESS_ON
 /* Invoke this method to run length compress a file in memory */
 unsigned char *MTX_RUNLENGTHCOMP_PackData(RUNLENGTHCOMP *t, unsigned char *data,
-                                          long lengthIn, long *lengthOut) {
+                                          long lengthIn, long *lengthOut)
+{
   unsigned long counters[256], minCount;
   register long i, runLength;
   unsigned char escape, theByte;
@@ -1178,8 +1203,8 @@ unsigned char *MTX_RUNLENGTHCOMP_PackData(RUNLENGTHCOMP *t, unsigned char *data,
   /* Use the least frequently used byte as the escape byte to */
   /* ensure that we do the least amount of "damage". */
 
-  /* We can at most grow the file by the first escape byte + minCount, since all
-   * bytes */
+  /* We can at most grow the file by the first escape byte + minCount, since
+   * all bytes */
   /* equal to the escape byte are represented as two bytes */
   outBase = out = (unsigned char *)MTX_mem_malloc(
       t->mem, sizeof(unsigned char) * (lengthIn + minCount + 1));
@@ -1214,9 +1239,10 @@ unsigned char *MTX_RUNLENGTHCOMP_PackData(RUNLENGTHCOMP *t, unsigned char *data,
         *out++ = theByte;
       } else {
         /* write: escape, 0         */
-        /* This signifies that we a have single byte which is equal to the
-         * escape byte! */
-        /* This is the only case were we loose, and expand intead of compress.
+        /* This signifies that we a have single byte which is equal to
+         * the escape byte! */
+        /* This is the only case were we loose, and expand intead of
+         * compress.
          */
         *out++ = escape;
         *out++ = 0;
@@ -1241,7 +1267,8 @@ const unsigned char needByteState = 2;
 /* as it goes to the memory. */
 void MTX_RUNLENGTHCOMP_SaveBytes(register RUNLENGTHCOMP *t, unsigned char value,
                                  unsigned char **dataOutRef,
-                                 long *dataOutSizeRef, long *indexRef) {
+                                 long *dataOutSizeRef, long *indexRef)
+{
   register unsigned char *dataOut = *dataOutRef;
   register long dataOutSize = *dataOutSizeRef;
   register long index = *indexRef;
@@ -1301,7 +1328,8 @@ void MTX_RUNLENGTHCOMP_SaveBytes(register RUNLENGTHCOMP *t, unsigned char value,
 #endif /* DECOMPRESS_ON */
 
 /* Constructor */
-RUNLENGTHCOMP *MTX_RUNLENGTHCOMP_Create(MTX_MemHandler *mem) {
+RUNLENGTHCOMP *MTX_RUNLENGTHCOMP_Create(MTX_MemHandler *mem)
+{
   RUNLENGTHCOMP *t =
       (RUNLENGTHCOMP *)MTX_mem_malloc(mem, sizeof(RUNLENGTHCOMP));
   t->mem = mem;

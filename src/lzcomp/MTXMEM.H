@@ -47,8 +47,8 @@ typedef struct {
 
 /* public interface routines */
 /* Call mem_CloseMemory on normal exit */
-void MTX_mem_CloseMemory(
-    MTX_MemHandler *t); /*  Frees internal memory and for debugging purposes */
+void MTX_mem_CloseMemory(MTX_MemHandler *t); /*  Frees internal memory and
+                                                for debugging purposes */
 /* Call mem_FreeAllMemory insted on an abnormal (exception) exit */
 void MTX_mem_FreeAllMemory(
     MTX_MemHandler *t); /* Always call if the code throws an exception */

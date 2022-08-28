@@ -6,9 +6,8 @@
 #ifndef __LIBEOT_SFNT_CONTAINER_H__
 #define __LIBEOT_SFNT_CONTAINER_H__
 
-#include <stdint.h>
-
 #include <libeot/libeot.h>
+#include <stdint.h>
 
 #include "../util/stream.h"
 

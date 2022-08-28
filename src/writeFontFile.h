@@ -6,10 +6,9 @@
 #ifndef __LIBEOT_WRITE_FONT_FILE_H__
 #define __LIBEOT_WRITE_FONT_FILE_H__
 
+#include <libeot/libeot.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-#include <libeot/libeot.h>
 
 enum EOTError writeFontBuffer(const uint8_t *font, unsigned fontSize,
                               bool compressed, bool encrypted,

@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 Brennan T. Vincent <brennanv@email.arizona.edu>
- * This file is a part of libeot, which is licensed under the MPL license, version 2.0.
- * For full details, see the file LICENSE
+ * This file is a part of libeot, which is licensed under the MPL license,
+ * version 2.0. For full details, see the file LICENSE
  */
 
 #ifndef __LIBEOT_PARSETTF_H__
@@ -10,13 +10,11 @@
 
 #include "SFNTContainer.h"
 
-struct TTFheadData
-{
+struct TTFheadData {
   int16_t indexToLocFormat;
 };
 
-struct TTFmaxpData
-{
+struct TTFmaxpData {
   uint16_t numGlyphs;
   uint16_t maxPoints;
   uint16_t maxContours;
@@ -38,5 +36,3 @@ enum EOTError TTFParseHead(struct SFNTTable *tbl, struct TTFheadData *out);
 enum EOTError TTFParseMaxp(struct SFNTTable *tbl, struct TTFmaxpData *out);
 
 #endif /* #define __LIBEOT_PARSETTF_H__ */
-
-/* vim:set shiftwidth=2 softtabstop=2 expandtab: */

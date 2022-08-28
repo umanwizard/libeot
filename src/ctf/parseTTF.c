@@ -1,18 +1,16 @@
 /* Copyright (c) 2013 Brennan T. Vincent <brennanv@email.arizona.edu>
- * This file is a part of libeot, which is licensed under the MPL license, version 2.0.
- * For full details, see the file LICENSE
+ * This file is a part of libeot, which is licensed under the MPL license,
+ * version 2.0. For full details, see the file LICENSE
  */
 
 #include <libeot/libeot.h>
 
-#include "parseTTF.h"
-#include "SFNTContainer.h"
 #include "../util/stream.h"
+#include "SFNTContainer.h"
+#include "parseTTF.h"
 
-enum EOTError TTFParseHead(struct SFNTTable *tbl, struct TTFheadData *out)
-{
-  if (tbl->bufSize < 52)
-  {
+enum EOTError TTFParseHead(struct SFNTTable *tbl, struct TTFheadData *out) {
+  if (tbl->bufSize < 52) {
     return EOT_CORRUPT_FILE;
   }
   *out = (struct TTFheadData){0};
@@ -22,8 +20,7 @@ enum EOTError TTFParseHead(struct SFNTTable *tbl, struct TTFheadData *out)
   return EOT_SUCCESS;
 }
 
-enum EOTError TTFParseMaxp(struct SFNTTable *tbl, struct TTFmaxpData *out)
-{
+enum EOTError TTFParseMaxp(struct SFNTTable *tbl, struct TTFmaxpData *out) {
   struct Stream s = constructStream(tbl->buf, tbl->bufSize);
   enum StreamResult sResult;
   // sResult = seekRelative(&s, 4);

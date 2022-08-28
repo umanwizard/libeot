@@ -1,6 +1,6 @@
 /* Copyright (c) 2013 Brennan T. Vincent <brennanv@email.arizona.edu>
- * This file is a part of libeot, which is licensed under the MPL license, version 2.0.
- * For full details, see the file LICENSE
+ * This file is a part of libeot, which is licensed under the MPL license,
+ * version 2.0. For full details, see the file LICENSE
  */
 
 #ifndef __LIBEOT_EOT_H__
@@ -11,8 +11,7 @@
 
 #include "EOTError.h"
 
-struct EUDCInfo
-{
+struct EUDCInfo {
   bool exists;
   uint32_t codePage;
   uint32_t flags;
@@ -20,15 +19,9 @@ struct EUDCInfo
   uint8_t *fontData;
 };
 
-enum EOTVersion
-{
-  VERSION_1 = 1,
-  VERSION_2 = 2,
-  VERSION_3 = 3
-};
+enum EOTVersion { VERSION_1 = 1, VERSION_2 = 2, VERSION_3 = 3 };
 
-enum EOTCharset
-{
+enum EOTCharset {
   ANSI_CHARSET = 0,
   DEFAULT_CHARSET = 1,
   SYMBOL_CHARSET = 2,
@@ -50,14 +43,12 @@ enum EOTCharset
   OEM_CHARSET = 255
 };
 
-struct EOTRootStringInfo
-{
+struct EOTRootStringInfo {
   uint16_t rootStringSize;
   uint16_t *rootString;
 };
 
-struct EOTMetadata
-{
+struct EOTMetadata {
   uint32_t totalSize;
   enum EOTVersion version;
   uint32_t flags;
@@ -90,10 +81,8 @@ struct EOTMetadata
 
 unsigned EOTgetMetadataLength(const uint8_t *bytes);
 enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
-    struct EOTMetadata *out);
+                              struct EOTMetadata *out);
 void EOTfreeMetadata(struct EOTMetadata *toFree);
 bool EOTcanLegallyEdit(const struct EOTMetadata *metadata);
 
 #endif /* #define __LIBEOT_EOT_H__ */
-
-/* vim:set shiftwidth=2 softtabstop=2 expandtab: */

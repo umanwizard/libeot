@@ -1,14 +1,13 @@
 /* Copyright (c) 2013 Brennan T. Vincent <brennanv@email.arizona.edu>
- * This file is a part of libeot, which is licensed under the MPL license, version 2.0.
- * For full details, see the file LICENSE
+ * This file is a part of libeot, which is licensed under the MPL license,
+ * version 2.0. For full details, see the file LICENSE
  */
 
 #ifndef __LIBEOT_EOTERROR_H__
 #define __LIBEOT_EOTERROR_H__
 
 #define EOT_WARN 1000
-enum EOTError
-{
+enum EOTError {
   EOT_SUCCESS,
   EOT_INSUFFICIENT_BYTES,
   EOT_HEADER_TOO_BIG,
@@ -34,5 +33,3 @@ enum EOTError
   EOT_WARN_NOT_ENOUGH_GLYPHS
 };
 #endif /* #define __LIBEOT_EOTERROR_H__ */
-
-/* vim:set shiftwidth=2 softtabstop=2 expandtab: */

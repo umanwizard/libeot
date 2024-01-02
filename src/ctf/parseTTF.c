@@ -6,6 +6,7 @@
 #include "parseTTF.h"
 
 #include <libeot/libeot.h>
+#include <string.h>
 
 #include "../util/stream.h"
 #include "SFNTContainer.h"

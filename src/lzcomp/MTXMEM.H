@@ -6,6 +6,7 @@
 #define MEMORY_HPP
 
 #include <setjmp.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {

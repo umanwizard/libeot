@@ -573,7 +573,7 @@ enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
 enum EOTError decodeGlyph(struct Stream **streams, struct Stream *out)
 {
   struct Stream *in = streams[0];
-  int16_t numContours, xMin, yMin, xMax, yMax;
+  int16_t numContours, xMin = 0, yMin = 0, xMax = 0, yMax = 0;
   bool calculateBoundingBox = false;
   enum StreamResult sResult;
   RD2(BEReadS16, in, &numContours, sResult);

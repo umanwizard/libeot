@@ -28,11 +28,12 @@ enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut,
   }
   enum StreamResult sResult;
   enum EOTError returnedStatus = EOT_SUCCESS;
+  LZCOMP *lzcomp = NULL;
   MTX_MemHandler *mem = MTX_mem_Create(&malloc, &realloc, &free);
   if (!mem) {
     goto CLEANUP;
   }
-  LZCOMP *lzcomp = MTX_LZCOMP_Create1(mem);
+  lzcomp = MTX_LZCOMP_Create1(mem);
   if (!lzcomp) {
     goto CLEANUP;
   }
@@ -65,7 +66,8 @@ enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut,
     }
   }
 CLEANUP:
-  MTX_LZCOMP_Destroy(lzcomp);
+  if (lzcomp)
+    MTX_LZCOMP_Destroy(lzcomp);
   free(mem);
   return returnedStatus;
 }

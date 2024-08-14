@@ -552,6 +552,15 @@ enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
     CHK_RD2(sResult);
   } while (flags & FLG_MORE_COMPONENTS);
   if (flags & FLG_HAVE_INSTR) {
+    /*
+    https://learn.microsoft.com/en-us/typography/opentype/spec/glyf 
+    uint16 numInstr
+    */
+    uint16_t numInstr = 0;
+    unsigned numInstrLocation = out->pos;
+    sResult = seekRelativeThroughReserve(out, sizeof(uint16_t));
+    CHK_RD2(sResult);
+    
     /* decode the push instructions for the glyph */
     uint16_t pushCount;
     sResult = read255UShort(in, &pushCount);
@@ -566,6 +575,17 @@ enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
     CHK_RD2(sResult);
     sResult = streamCopy(streams[2], out, codeSize);
     CHK_RD2(sResult);
+
+    numInstr = out->pos - (numInstrLocation + sizeof(uint16_t));
+    if (numInstr > 0){
+      unsigned currPos = out->pos;
+      sResult = seekAbsoluteThroughReserve(out, numInstrLocation);
+      CHK_RD2(sResult);
+      RD2(BEWriteU16, out, (uint16_t)numInstr, sResult);
+      CHK_RD2(sResult);
+      sResult = seekAbsoluteThroughReserve(out, currPos);
+      CHK_RD2(sResult);
+    }
   }
   return EOT_SUCCESS;
 }

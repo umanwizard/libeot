@@ -285,6 +285,7 @@ enum StreamResult streamCopy(struct Stream *sIn, struct Stream *sOut,
   memcpy(sOut->buf + sOut->pos, sIn->buf + sIn->pos, length);
   sOut->pos += length;
   sIn->pos += length;
+  FIX_SIZE(sOut);
   return EOT_STREAM_OK;
 }
 

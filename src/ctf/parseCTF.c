@@ -707,6 +707,14 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
       RD2(BEReadChar, streams[0], tag + j, sResult);
     }
     struct SFNTTable *tbl;
+    // TO-DO: Fix hdmx|VDMX table
+    if (strncmp(tag, "hdmx", 4) == 0 || strncmp(tag, "VDMX", 4) == 0 ) {
+      // skip checkSum, offset, length to next table offset
+      sResult = seekRelative(streams[0], 12);
+      logWarning("Ignoring hdmx/VDMX table -- will be fixed in a future release.\n");
+      continue;
+    }
+    
     result = addTable(*out, tag, &tbl);
     /* skip the checksum, which we are not using for now. */
     sResult = seekRelative(streams[0], 4);

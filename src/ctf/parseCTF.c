@@ -707,6 +707,14 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
       RD2(BEReadChar, streams[0], tag + j, sResult);
     }
     struct SFNTTable *tbl;
+    // TO-DO: Fix hdmx|VDMX table
+    if (strncmp(tag, "hdmx", 4) == 0 || strncmp(tag, "VDMX", 4) == 0 ) {
+      // skip checkSum, offset, length to next table offset
+      sResult = seekRelative(streams[0], 12);
+      logWarning("Ignoring hdmx/VDMX table -- will be fixed in a future release.\n");
+      continue;
+    }
+    
     result = addTable(*out, tag, &tbl);
     /* skip the checksum, which we are not using for now. */
     sResult = seekRelative(streams[0], 4);
@@ -717,7 +725,7 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     RD2(BEReadU32, streams[0], &tbl->bufSize, sResult);
   }
   struct SFNTTable *glyf = NULL, *loca = NULL, *maxp = NULL, *head = NULL,
-                   *hmtx = NULL, *hdmx = NULL, *VDMX = NULL;
+                   *hmtx = NULL;
   for (unsigned i = 0; i < (*out)->numTables; ++i) {
     struct SFNTTable *tbl = &((*out)->tables[i]);
     bool loadTable = true;
@@ -733,9 +741,10 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
       head = tbl;
     } else if (strncmp(tbl->tag, "hmtx", 4) == 0) {
       hmtx = tbl;
-    } else if (strncmp(tbl->tag, "hdmx", 4) == 0) {
-      hdmx = tbl;
-      loadTable = false;
+    } else if (strncmp(tbl->tag, "hdmx", 4) == 0
+               || strncmp(tbl->tag, "VDMX", 4) == 0) {
+      // this was already checked above
+      return EOT_LOGIC_ERROR;
     } else if (strncmp(tbl->tag, "cvt ", 4) == 0) {
       result = unpackCVT(tbl, streams[0]);
       if (result != EOT_SUCCESS) {
@@ -743,7 +752,6 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
       }
       loadTable = false;
     } else if (strncmp(tbl->tag, "VDMX", 4) == 0) {
-      VDMX = tbl;
       loadTable = false;
     }
     if (loadTable) {
@@ -802,17 +810,6 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     return result;
   }
   */
-  /* FIXME: Real hmdx and VMDX */
-  if (hdmx) {
-    hdmx->buf = NULL;
-    hdmx->bufSize = 0;
-    logWarning("Ignoring hdmx table -- will be fixed in a future release.\n");
-  }
-  if (VDMX) {
-    VDMX->buf = NULL;
-    VDMX->bufSize = 0;
-    logWarning("Ignoring VDMX table -- will be fixed in a future release.\n");
-  }
   return EOT_SUCCESS;
 }
 

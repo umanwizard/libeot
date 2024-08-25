@@ -728,10 +728,6 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
   *hmtx = NULL;
   for (unsigned i = 0; i < (*out)->numTables; ++i) {
     struct SFNTTable *tbl = &((*out)->tables[i]);
-    fprintf(stderr, "has table: %.4s\n", tbl->tag);
-  }
-  for (unsigned i = 0; i < (*out)->numTables; ++i) {
-    struct SFNTTable *tbl = &((*out)->tables[i]);
     bool loadTable = true;
     if (strncmp(tbl->tag, "loca", 4) == 0) {
       loca = tbl;

@@ -725,7 +725,11 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     RD2(BEReadU32, streams[0], &tbl->bufSize, sResult);
   }
   struct SFNTTable *glyf = NULL, *loca = NULL, *maxp = NULL, *head = NULL,
-                   *hmtx = NULL;
+  *hmtx = NULL;
+  for (unsigned i = 0; i < (*out)->numTables; ++i) {
+    struct SFNTTable *tbl = &((*out)->tables[i]);
+    fprintf(stderr, "has table: %.4s\n", tbl->tag);
+  }
   for (unsigned i = 0; i < (*out)->numTables; ++i) {
     struct SFNTTable *tbl = &((*out)->tables[i]);
     bool loadTable = true;
@@ -770,7 +774,7 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
       }
     }
   }
-  if (!loca) {
+  if (glyf && !loca) {
     result = addTable(*out, "loca", &loca);
     if (result != EOT_SUCCESS) {
       return result;

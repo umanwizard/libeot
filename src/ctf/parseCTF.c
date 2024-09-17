@@ -799,6 +799,7 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     return result;
   }
   if (glyf) {
+    (*out)->isTTF = true;
     result = populateGlyfAndLoca(glyf, loca, &headData, &maxpData, streams);
     if (result != EOT_SUCCESS) {
       return result;

@@ -59,6 +59,7 @@ enum EOTError EOT2ttf_file(const uint8_t *font, unsigned fontSize,
       metadataOut->flags & TTEMBED_TTCOMPRESSED,
       metadataOut->flags & TTEMBED_XORENCRYPTDATA, out);
   if (writeResult != EOT_SUCCESS) {
+    EOTfreeMetadata(metadataOut);
     return writeResult;
   }
   return EOT_SUCCESS;
@@ -82,6 +83,7 @@ enum EOTError EOT2ttf_buffer(const uint8_t *font, unsigned fontSize,
   if (result >= EOT_WARN) {
     EOTprintError(result, stderr);
   } else if (writeResult != EOT_SUCCESS) {
+    EOTfreeMetadata(metadataOut);
     return writeResult;
   }
   return EOT_SUCCESS;

@@ -812,6 +812,11 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
         if (distance >= max_2Byte_Dist)
           length++;
         start = pos - distance - length + 1;
+        // out-of-bound
+        if (start < (-1)*preLoadSize || start + length >= t->out_len) {
+            MTX_mem_free( t->mem, dataOut);
+            return NULL;
+        }
         for (j = 0; j < length; j++) {
           value = ptr1[start + j];
           ptr1[pos++] = value;
@@ -1109,7 +1114,7 @@ unsigned char *MTX_LZCOMP_UnPackMemory(register LZCOMP *t, void *dataIn,
   MTX_RUNLENGTHCOMP_Destroy(t->rlComp);
   t->rlComp = NULL;
 
-  assert(t->usingRunLength || *sizeOut < maxOutSize);
+  if (dataOut) assert(t->usingRunLength || *sizeOut < maxOutSize);
 
 #ifdef VERBOSE
   /*cout << "Wrote " << *sizeOut << " Bytes to file <" << outName << ">" <<

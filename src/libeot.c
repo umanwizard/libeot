@@ -3,7 +3,6 @@
  * version 2.0. For full details, see the file LICENSE
  */
 
-#include <err.h>
 #include <libeot/libeot.h>
 #include <stdint.h>
 #include <stdio.h>

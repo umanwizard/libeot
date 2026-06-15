@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     fseek(in, offsets[i], SEEK_SET);
     fread(buf, 1, sizes[i], in);
     char fnBuf[10];
-    sprintf(fnBuf, "%d.ctf", i + 1);
+    snprintf(fnBuf, sizeof(fnBuf), "%d.ctf", i + 1);
     FILE *out = fopen(fnBuf, "wb");
     if (out == NULL) {
       fprintf(stderr, "Cannot open file: %s for writing\n", fnBuf);

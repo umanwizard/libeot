@@ -193,10 +193,9 @@ enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf,
   /* this mystical number 0xB1B0AFBA is defined by the TTF standard, dunno why
    * they picked this value. */
   unsigned finalChecksum = 0xB1B0AFBA - chk;
-  struct Stream sChkOut = constructStream(head->buf, head->bufSize);
-  sResult = seekAbsolute(&sChkOut, 8);
+  sResult = seekAbsolute(&s, head->offset + 8);
   CHK_CN(sResult, EOT_LOGIC_ERROR);
-  sResult = BEWriteU32(&sChkOut, finalChecksum);
+  sResult = BEWriteU32(&s, finalChecksum);
   CHK_CN(sResult, EOT_LOGIC_ERROR);
   returnedStatus = EOT_SUCCESS;
   *outBuf = s.buf;

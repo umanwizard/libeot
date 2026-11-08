@@ -269,6 +269,8 @@ static long DecodeLength(LZCOMP *t, int symbol, long *numDistRanges)
     bits &= ~mask;
     value <<= bit_Range;
     value |= bits;
+    if (value > t->out_len)
+      longjmp(t->mem->env, ERR_LZCOMP_Decode_bounds);
   } while (!done);
 
   value += len_min;

@@ -783,10 +783,10 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
   register unsigned char value;
   register int usingRunLength = t->usingRunLength;
   long dataOutSize, index = 0;
-  unsigned char *dataOut;
   const long preLoadSize = 2 * 32 * 96 + 4 * 256;
 
-  dataOut = (unsigned char *)MTX_mem_malloc(t->mem, dataOutSize = t->out_len);
+  t->dataOut =
+      (unsigned char *)MTX_mem_malloc(t->mem, dataOutSize = t->out_len);
 
   InitializeModel(t, false);
   if (!t->ptr1_IsSizeLimited) {
@@ -818,17 +818,17 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
           value = ptr1[start + j];
           ptr1[pos++] = value;
           if (usingRunLength) {
-            MTX_RUNLENGTHCOMP_SaveBytes(t->rlComp, value, &dataOut,
+            MTX_RUNLENGTHCOMP_SaveBytes(t->rlComp, value, &t->dataOut,
                                         &dataOutSize, &index);
           } else {
             assert(index <= dataOutSize);
             if (index >= dataOutSize) {
               /* Allocate in exponentially increasing steps */
               dataOutSize += (dataOutSize >> 1) + 1;
-              dataOut = (unsigned char *)MTX_mem_realloc(t->mem, dataOut,
-                                                         dataOutSize);
+              t->dataOut = (unsigned char *)MTX_mem_realloc(t->mem, t->dataOut,
+                                                            dataOutSize);
             }
-            dataOut[index++] = value;
+            t->dataOut[index++] = value;
             /*fputc( value, fpOut ); */
           }
         }
@@ -836,7 +836,7 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
       }
       ptr1[pos++] = value;
       if (usingRunLength) {
-        MTX_RUNLENGTHCOMP_SaveBytes(t->rlComp, value, &dataOut, &dataOutSize,
+        MTX_RUNLENGTHCOMP_SaveBytes(t->rlComp, value, &t->dataOut, &dataOutSize,
                                     &index);
       } else {
         assert(index <= dataOutSize);
@@ -844,10 +844,10 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
           /* Allocate in exponentially increasing steps */
           dataOutSize +=
               (dataOutSize >> 1) + 1;
-          dataOut =
-              (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
+          t->dataOut =
+              (unsigned char *)MTX_mem_realloc(t->mem, t->dataOut, dataOutSize);
         }
-        dataOut[index++] = value;
+        t->dataOut[index++] = value;
         /*fputc( value, fpOut ); */
       }
     }
@@ -897,17 +897,17 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
           dst = (dst + 1) % t->maxCopyDistance;
           pos++;
           if (usingRunLength) {
-            MTX_RUNLENGTHCOMP_SaveBytes(t->rlComp, value, &dataOut,
+            MTX_RUNLENGTHCOMP_SaveBytes(t->rlComp, value, &t->dataOut,
                                         &dataOutSize, &index);
           } else {
             assert(index <= dataOutSize);
             if (index >= dataOutSize) {
               /* Allocate in exponentially increasing steps */
               dataOutSize += (dataOutSize >> 1) + 1;
-              dataOut = (unsigned char *)MTX_mem_realloc(t->mem, dataOut,
-                                                         dataOutSize);
+              t->dataOut = (unsigned char *)MTX_mem_realloc(t->mem, t->dataOut,
+                                                            dataOutSize);
             }
-            dataOut[index++] = value;
+            t->dataOut[index++] = value;
             /*fputc( value, fpOut ); */
           }
         }
@@ -917,7 +917,7 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
       dst = (dst + 1) % t->maxCopyDistance;
       pos++;
       if (usingRunLength) {
-        MTX_RUNLENGTHCOMP_SaveBytes(t->rlComp, value, &dataOut, &dataOutSize,
+        MTX_RUNLENGTHCOMP_SaveBytes(t->rlComp, value, &t->dataOut, &dataOutSize,
                                     &index);
       } else {
         assert(index <= dataOutSize);
@@ -925,10 +925,10 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
           /* Allocate in exponentially increasing steps */
           dataOutSize +=
               (dataOutSize >> 1) + 1;
-          dataOut =
-              (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
+          t->dataOut =
+              (unsigned char *)MTX_mem_realloc(t->mem, t->dataOut, dataOutSize);
         }
-        dataOut[index++] = value;
+        t->dataOut[index++] = value;
         /*fputc( value, fpOut ); */
       }
     }
@@ -940,10 +940,10 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
   *size = index;
   assert(dataOutSize >= *size);
   if (t->usingRunLength) {
-    dataOut = (unsigned char *)MTX_mem_realloc(
-        t->mem, dataOut, *size); /* Free up some memory if possible */
+    t->dataOut = (unsigned char *)MTX_mem_realloc(
+        t->mem, t->dataOut, *size); /* Free up some memory if possible */
   }
-  return dataOut; /******/
+  return t->dataOut; /******/
 }
 
 #endif /*DECOMPRESS_ON */
@@ -1055,6 +1055,28 @@ unsigned char *MTX_LZCOMP_PackMemory(register LZCOMP *t, void *dataIn,
 #endif /* COMPRESS_ON */
 
 #ifdef DECOMPRESS_ON
+/* Frees what MTX_LZCOMP_UnPackMemory allocates, except ptr1 */
+static void FreeDecodeState(LZCOMP *t)
+{
+  if (t->dist_ecoder)
+    MTX_AHUFF_Destroy(t->dist_ecoder);
+  t->dist_ecoder = NULL;
+  if (t->len_ecoder)
+    MTX_AHUFF_Destroy(t->len_ecoder);
+  t->len_ecoder = NULL;
+  if (t->sym_ecoder)
+    MTX_AHUFF_Destroy(t->sym_ecoder);
+  t->sym_ecoder = NULL;
+  if (t->bitIn)
+    MTX_BITIO_Destroy(t->bitIn);
+  t->bitIn = NULL;
+  if (t->rlComp)
+    MTX_RUNLENGTHCOMP_Destroy(t->rlComp);
+  t->rlComp = NULL;
+  MTX_mem_free(t->mem, t->dataOut);
+  t->dataOut = NULL;
+}
+
 /* Call this method to un-compress memory */
 unsigned char *MTX_LZCOMP_UnPackMemory(register LZCOMP *t, void *dataIn,
                                        long dataInSize, long *sizeOut,
@@ -1073,6 +1095,20 @@ unsigned char *MTX_LZCOMP_UnPackMemory(register LZCOMP *t, void *dataIn,
     MTX_mem_free(t->mem, t->ptr1);
   }
   t->ptr1 = NULL;
+  t->rlComp = NULL;
+  t->bitIn = NULL;
+  t->dist_ecoder = NULL;
+  t->len_ecoder = NULL;
+  t->sym_ecoder = NULL;
+  t->dataOut = NULL;
+  *sizeOut = 0;
+
+  /* Errors while decoding longjmp back here */
+  if (setjmp(t->mem->env) != 0) {
+    FreeDecodeState(t);
+    return NULL;
+  }
+
   t->rlComp = MTX_RUNLENGTHCOMP_Create(t->mem);
 
   t->bitIn = MTX_BITIO_Create(t->mem, dataIn, dataInSize, 'r');
@@ -1102,18 +1138,9 @@ unsigned char *MTX_LZCOMP_UnPackMemory(register LZCOMP *t, void *dataIn,
 
   assert(t->sym_ecoder != NULL);
   dataOut = Decode(t, sizeOut); /* Do the work ! */
+  t->dataOut = NULL;
 
-  MTX_AHUFF_Destroy(t->dist_ecoder);
-  t->dist_ecoder = NULL;
-  MTX_AHUFF_Destroy(t->len_ecoder);
-  t->len_ecoder = NULL;
-  MTX_AHUFF_Destroy(t->sym_ecoder);
-  t->sym_ecoder = NULL;
-
-  MTX_BITIO_Destroy(t->bitIn);
-  t->bitIn = NULL;
-  MTX_RUNLENGTHCOMP_Destroy(t->rlComp);
-  t->rlComp = NULL;
+  FreeDecodeState(t);
 
   assert(t->usingRunLength || *sizeOut < maxOutSize);
 

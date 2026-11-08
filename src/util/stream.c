@@ -322,11 +322,14 @@ enum StreamResult BEcheckSum32(struct Stream *s, uint32_t *out,
     return EOT_NOT_ENOUGH_DATA;
   }
   struct Stream slice = constructStream(s->buf + beginPos, endPos - beginPos);
-  enum StreamResult sResult = EOT_STREAM_OK;
   *out = 0;
-  while (sResult == EOT_STREAM_OK) {
+  enum StreamResult sResult = EOT_STREAM_OK;
+  while (true) {
     uint32_t chunk;
     sResult = BEReadRestAsU32(&slice, &chunk);
+    if (sResult != EOT_STREAM_OK) {
+      break;
+    }
     *out += chunk;
   }
   if (sResult == EOT_NOT_ENOUGH_DATA) {

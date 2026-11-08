@@ -812,6 +812,8 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
         if (distance >= max_2Byte_Dist)
           length++;
         start = pos - distance - length + 1;
+        if (length > t->out_len - pos)
+          longjmp(t->mem->env, ERR_LZCOMP_Decode_bounds);
         for (j = 0; j < length; j++) {
           value = ptr1[start + j];
           ptr1[pos++] = value;
@@ -884,6 +886,8 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
           length++;
         start = dst - distance - length + 1;
         assert(distance + length - 1 <= t->maxCopyDistance);
+        if (length > t->out_len - pos)
+          longjmp(t->mem->env, ERR_LZCOMP_Decode_bounds);
         for (j = 0; j < length; j++) {
           src = start + j;
           if (src < 0)

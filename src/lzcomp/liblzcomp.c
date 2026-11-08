@@ -49,13 +49,14 @@ enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut,
     sResult = BEReadU24(buf, &offsets[i]);
     CHK_CN(sResult, EOT_MTX_ERROR);
   }
+  if (offsets[1] < offsets[0] || offsets[2] < offsets[1] ||
+      offsets[2] > buf->size) {
+    returnedStatus = EOT_MTX_ERROR;
+    goto CLEANUP;
+  }
   unsigned sizes[] = {offsets[1] - offsets[0], offsets[2] - offsets[1],
                       buf->size - offsets[2]};
   for (unsigned i = 0; i < 3; ++i) {
-    if (offsets[i] + sizes[i] > buf->size) {
-      returnedStatus = EOT_MTX_ERROR;
-      goto CLEANUP;
-    }
     long sizeOut;
     bufsOut[i] = (uint8_t *)MTX_LZCOMP_UnPackMemory(
         lzcomp, buf->buf + offsets[i], sizes[i], &sizeOut, versionMagic);

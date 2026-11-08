@@ -31,10 +31,12 @@ enum EOTError unpackMtx(struct Stream *buf, unsigned size, uint8_t **bufsOut,
   LZCOMP *lzcomp = NULL;
   MTX_MemHandler *mem = MTX_mem_Create(&malloc, &realloc, &free);
   if (!mem) {
+    returnedStatus = EOT_CANT_ALLOCATE_MEMORY;
     goto CLEANUP;
   }
   lzcomp = MTX_LZCOMP_Create1(mem);
   if (!lzcomp) {
+    returnedStatus = EOT_CANT_ALLOCATE_MEMORY;
     goto CLEANUP;
   }
   uint8_t versionMagic;

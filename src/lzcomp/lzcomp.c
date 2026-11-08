@@ -1164,7 +1164,9 @@ unsigned char *MTX_LZCOMP_UnPackMemory(register LZCOMP *t, void *dataIn,
 LZCOMP *MTX_LZCOMP_Create1(MTX_MemHandler *mem)
 {
   const short hNodeAllocSize = 4095;
-  LZCOMP *t = (LZCOMP *)MTX_mem_malloc(mem, sizeof(LZCOMP));
+  LZCOMP *t = (LZCOMP *)mem->malloc(sizeof(LZCOMP));
+  if (!t)
+    return NULL;
   t->mem = mem;
 
   t->ptr1 = NULL;
@@ -1183,7 +1185,9 @@ LZCOMP *MTX_LZCOMP_Create2(MTX_MemHandler *mem, long maxCopyDistance)
 {
   const long preLoadSize = 2 * 32 * 96 + 4 * 256;
   const short hNodeAllocSize = 4095;
-  LZCOMP *t = (LZCOMP *)MTX_mem_malloc(mem, sizeof(LZCOMP));
+  LZCOMP *t = (LZCOMP *)mem->malloc(sizeof(LZCOMP));
+  if (!t)
+    return NULL;
   t->mem = mem;
 
   t->ptr1 = NULL;

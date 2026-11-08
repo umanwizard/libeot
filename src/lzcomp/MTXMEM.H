@@ -54,6 +54,7 @@ void MTX_mem_CloseMemory(MTX_MemHandler *t); /*  Frees internal memory and
 void MTX_mem_FreeAllMemory(
     MTX_MemHandler *t); /* Always call if the code throws an exception */
 
+/* On failure these longjmp to env, and realloc leaves p allocated */
 void *MTX_mem_malloc(MTX_MemHandler *t, unsigned long size);
 void *MTX_mem_realloc(MTX_MemHandler *t, void *p, unsigned long size);
 void MTX_mem_free(MTX_MemHandler *t, void *deadObject);

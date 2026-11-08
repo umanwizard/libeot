@@ -4,3 +4,4 @@
                                          FILE*/
 #define ERR_LZCOMP_Encode_bounds 3353 /*LZCOMP:Encode out of bounds i*/
 #define ERR_LZCOMP_Decode_bounds 3354 /*LZCOMP::Decode out of bounds pos*/
+#define ERR_MTX_mem_alloc 3355        /*MTX_mem: allocation failed*/

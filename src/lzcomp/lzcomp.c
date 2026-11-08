@@ -821,8 +821,8 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
           } else {
             assert(index <= dataOutSize);
             if (index >= dataOutSize) {
-              dataOutSize += dataOutSize >> 1; /* Allocate in exponentially
-                                                  increasing steps */
+              /* Allocate in exponentially increasing steps */
+              dataOutSize += (dataOutSize >> 1) + 1;
               dataOut = (unsigned char *)MTX_mem_realloc(t->mem, dataOut,
                                                          dataOutSize);
             }
@@ -839,8 +839,9 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
       } else {
         assert(index <= dataOutSize);
         if (index >= dataOutSize) {
+          /* Allocate in exponentially increasing steps */
           dataOutSize +=
-              dataOutSize >> 1; /* Allocate in exponentially increasing steps */
+              (dataOutSize >> 1) + 1;
           dataOut =
               (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
         }
@@ -897,8 +898,8 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
           } else {
             assert(index <= dataOutSize);
             if (index >= dataOutSize) {
-              dataOutSize += dataOutSize >> 1; /* Allocate in exponentially
-                                                  increasing steps */
+              /* Allocate in exponentially increasing steps */
+              dataOutSize += (dataOutSize >> 1) + 1;
               dataOut = (unsigned char *)MTX_mem_realloc(t->mem, dataOut,
                                                          dataOutSize);
             }
@@ -917,8 +918,9 @@ static unsigned char *Decode(register LZCOMP *t, long *size)
       } else {
         assert(index <= dataOutSize);
         if (index >= dataOutSize) {
+          /* Allocate in exponentially increasing steps */
           dataOutSize +=
-              dataOutSize >> 1; /* Allocate in exponentially increasing steps */
+              (dataOutSize >> 1) + 1;
           dataOut =
               (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
         }
@@ -1279,8 +1281,9 @@ void MTX_RUNLENGTHCOMP_SaveBytes(register RUNLENGTHCOMP *t, unsigned char value,
     } else {
       assert(index <= dataOutSize);
       if (index >= dataOutSize) {
+        /* Allocate in exponentially increasing steps */
         dataOutSize +=
-            dataOutSize >> 1; /* Allocate in exponentially increasing steps */
+            (dataOutSize >> 1) + 1;
         dataOut =
             (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
       }
@@ -1290,8 +1293,9 @@ void MTX_RUNLENGTHCOMP_SaveBytes(register RUNLENGTHCOMP *t, unsigned char value,
     if ((t->count = value) == 0) {
       assert(index <= dataOutSize);
       if (index >= dataOutSize) {
+        /* Allocate in exponentially increasing steps */
         dataOutSize +=
-            dataOutSize >> 1; /* Allocate in exponentially increasing steps */
+            (dataOutSize >> 1) + 1;
         dataOut =
             (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
       }

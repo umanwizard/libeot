@@ -28,6 +28,8 @@
 /*const int NUM_SYMS      = DUP6 + 1; */
 
 const long max_2Byte_Dist = 512;
+/* The largest decoded size of one block, far above what real fonts reach */
+const long max_DecodedBlockSize = 256L * 1024 * 1024;
 
 /* Sets the maximum number of distance ranges used, based on the <length>
  * parameter */
@@ -1306,6 +1308,21 @@ const unsigned char needByteState = 2;
 
 #ifdef DECOMPRESS_ON
 
+/* Grows the output to hold at least needed bytes, in exponentially increasing steps */
+static unsigned char *GrowOutput(MTX_MemHandler *mem, unsigned char *dataOut,
+                                 long *dataOutSize, long needed)
+{
+  long size;
+  if (needed > max_DecodedBlockSize)
+    longjmp(mem->env, ERR_LZCOMP_Decode_bounds);
+  size = needed + (*dataOutSize >> 1);
+  if (size > max_DecodedBlockSize)
+    size = max_DecodedBlockSize;
+  dataOut = (unsigned char *)MTX_mem_realloc(mem, dataOut, size);
+  *dataOutSize = size;
+  return dataOut;
+}
+
 /* Use this method to decompress the data transparantly */
 /* as it goes to the memory. */
 void MTX_RUNLENGTHCOMP_SaveBytes(register RUNLENGTHCOMP *t, unsigned char value,
@@ -1313,7 +1330,7 @@ void MTX_RUNLENGTHCOMP_SaveBytes(register RUNLENGTHCOMP *t, unsigned char value,
                                  long *dataOutSizeRef, long *indexRef)
 {
   register unsigned char *dataOut = *dataOutRef;
-  register long dataOutSize = *dataOutSizeRef;
+  long dataOutSize = *dataOutSizeRef;
   register long index = *indexRef;
 
   if (t->state == normalState) {
@@ -1321,25 +1338,15 @@ void MTX_RUNLENGTHCOMP_SaveBytes(register RUNLENGTHCOMP *t, unsigned char value,
       t->state = seenEscapeState;
     } else {
       assert(index <= dataOutSize);
-      if (index >= dataOutSize) {
-        /* Allocate in exponentially increasing steps */
-        dataOutSize +=
-            (dataOutSize >> 1) + 1;
-        dataOut =
-            (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
-      }
+      if (index >= dataOutSize)
+        dataOut = GrowOutput(t->mem, dataOut, &dataOutSize, index + 1);
       dataOut[index++] = value;
     }
   } else if (t->state == seenEscapeState) {
     if ((t->count = value) == 0) {
       assert(index <= dataOutSize);
-      if (index >= dataOutSize) {
-        /* Allocate in exponentially increasing steps */
-        dataOutSize +=
-            (dataOutSize >> 1) + 1;
-        dataOut =
-            (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
-      }
+      if (index >= dataOutSize)
+        dataOut = GrowOutput(t->mem, dataOut, &dataOutSize, index + 1);
       dataOut[index++] = t->escape;
       t->state = normalState;
     } else {
@@ -1348,12 +1355,9 @@ void MTX_RUNLENGTHCOMP_SaveBytes(register RUNLENGTHCOMP *t, unsigned char value,
   } else if (t->state == needByteState) {
     register int i;
 
-    if (index + (long)t->count > dataOutSize) {
-      dataOutSize =
-          index + (long)t->count +
-          (dataOutSize >> 1); /* Allocate in exponentially increasing steps */
-      dataOut = (unsigned char *)MTX_mem_realloc(t->mem, dataOut, dataOutSize);
-    }
+    if (index + (long)t->count > dataOutSize)
+      dataOut =
+          GrowOutput(t->mem, dataOut, &dataOutSize, index + (long)t->count);
     /* for ( i = 0; i < t->count; i++ ) */
     for (i = t->count; i > 0; i--) {
       dataOut[index++] = value;

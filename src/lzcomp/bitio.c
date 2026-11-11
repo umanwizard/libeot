@@ -42,10 +42,10 @@ short MTX_BITIO_input_bit(register BITIO *t)
 {
   /*assert( t->ReadOrWrite == 'r' ); */
   if (t->input_bit_count-- == 0) {
-    t->input_bit_buffer = t->mem_bytes[t->mem_index++];
-    if (t->mem_index > t->mem_size) {
+    if (t->mem_index >= t->mem_size) {
       longjmp(t->mem->env, ERR_BITIO_end_of_file);
     }
+    t->input_bit_buffer = t->mem_bytes[t->mem_index++];
     ++(t->bytes_in);
     t->input_bit_count = 7;
   }

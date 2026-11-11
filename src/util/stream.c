@@ -276,10 +276,10 @@ enum StreamResult streamCopy(struct Stream *sIn, struct Stream *sOut,
   if (sIn->bitPos != 0 || sOut->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
-  if (sIn->pos + length > sIn->size) {
+  if (length > sIn->size || sIn->pos > sIn->size - length) {
     return EOT_NOT_ENOUGH_DATA;
   }
-  if (sOut->pos + length > sOut->reserved) {
+  if (length > sOut->reserved || sOut->pos > sOut->reserved - length) {
     return EOT_OUT_OF_RESERVED_SPACE;
   }
   memcpy(sOut->buf + sOut->pos, sIn->buf + sIn->pos, length);

@@ -46,6 +46,8 @@ typedef struct {
   char filler1, filer2, filler3;
   /* New August 1, 1996 */
   RUNLENGTHCOMP *rlComp;
+  /* The output of a decode in progress */
+  unsigned char *dataOut;
   short usingRunLength;
 
   long length1, out_len;

@@ -79,8 +79,8 @@ enum EOTError EOT2ttf_buffer(const uint8_t *font, unsigned fontSize,
       font + metadataOut->fontDataOffset, metadataOut->fontDataSize,
       metadataOut->flags & TTEMBED_TTCOMPRESSED,
       metadataOut->flags & TTEMBED_XORENCRYPTDATA, fontOut, fontSizeOut);
-  if (result >= EOT_WARN) {
-    EOTprintError(result, stderr);
+  if (writeResult >= EOT_WARN) {
+    EOTprintError(writeResult, stderr);
   } else if (writeResult != EOT_SUCCESS) {
     return writeResult;
   }

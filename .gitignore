@@ -3,7 +3,7 @@
 *.eot
 *.ctf
 Makefile*
-configure*
+configure
 .*
 !.clang-format
 aclocal.m4

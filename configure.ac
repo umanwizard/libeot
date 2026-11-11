@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([libeot],[0.01],[brennanv@email.arizona.edu])
+AC_INIT([libeot],[0.01],[brennan@umanwizard.com])
 AM_INIT_AUTOMAKE([1.11 subdir-objects foreign dist-bzip2 dist-xz -Wall -Werror])
 AC_ARG_ENABLE(debug,
 AS_HELP_STRING([--enable-debug],

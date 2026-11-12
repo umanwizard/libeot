@@ -237,6 +237,9 @@ enum EOTError loadTableFromStream(struct SFNTTable *tbl, struct Stream *s)
   enum StreamResult sResult = seekAbsolute(s, tbl->offset);
   CHK_RD2(sResult);
   tbl->buf = (uint8_t *)malloc(tbl->bufSize);
+  if (tbl->buf == NULL && tbl->bufSize != 0) {
+    return EOT_CANT_ALLOCATE_MEMORY;
+  }
   struct Stream sOut = constructStream2(tbl->buf, 0, tbl->bufSize);
   sResult = streamCopy(s, &sOut, tbl->bufSize);
   CHK_RD2(sResult);

@@ -703,6 +703,7 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
   if (result != EOT_SUCCESS) {
     return result;
   }
+  unsigned totalTableSize = 0;
   for (unsigned i = 0; i < offsetTable.numTables; ++i) {
     char tag[4];
     for (unsigned j = 0; j < 4; ++j) {
@@ -725,6 +726,12 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     }
     RD2(BEReadU32, streams[0], &tbl->offset, sResult);
     RD2(BEReadU32, streams[0], &tbl->bufSize, sResult);
+    /* the tables lie inside stream 0 without overlapping, so their lengths add up to at most
+       its size */
+    if (tbl->bufSize > streams[0]->size - totalTableSize) {
+      return EOT_CORRUPT_FILE;
+    }
+    totalTableSize += tbl->bufSize;
   }
   struct SFNTTable *glyf = NULL, *loca = NULL, *maxp = NULL, *head = NULL,
   *hmtx = NULL;

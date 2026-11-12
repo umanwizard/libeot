@@ -83,9 +83,13 @@ enum EOTError unpackCVT(struct SFNTTable *out, struct Stream *sIn)
   int16_t lastValue = 0;
   for (unsigned i = 0; i < tableLength; ++i) {
     sResult = _ucvt_rdVal(sIn, &lastValue);
-    CHK_RD2(sResult);
+    if (sResult != EOT_STREAM_OK) {
+      free(sOut.buf);
+      return EOT_CORRUPT_FILE;
+    }
     sResult = BEWriteS16(&sOut, lastValue);
     if (sResult != EOT_STREAM_OK) {
+      free(sOut.buf);
       return EOT_LOGIC_ERROR;
     }
   }
@@ -498,19 +502,24 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams,
   }
   unsigned currPos = out->pos;
   sResult = seekAbsoluteThroughReserve(out, codeSizeLocation);
-  CHK_RD2(sResult);
-  RD2(BEWriteU16, out, (uint16_t)unpackedCodeSize, sResult);
-  CHK_RD2(sResult);
+  CHK_CN(sResult, EOT_CORRUPT_FILE);
+  sResult = BEWriteU16(out, (uint16_t)unpackedCodeSize);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
+  CHK_CN(sResult, EOT_CORRUPT_FILE);
   sResult = seekAbsoluteThroughReserve(out, currPos);
-  CHK_RD2(sResult);
+  CHK_CN(sResult, EOT_CORRUPT_FILE);
   if (calculateBoundingBox) {
     unsigned endPos = out->pos;
     sResult = seekAbsoluteThroughReserve(out, boundingBoxLocation);
-    CHK_RD2(sResult);
-    RD2(BEWriteS16, out, minX, sResult);
-    RD2(BEWriteS16, out, minY, sResult);
-    RD2(BEWriteS16, out, maxX, sResult);
-    RD2(BEWriteS16, out, maxY, sResult);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
+    sResult = BEWriteS16(out, minX);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
+    sResult = BEWriteS16(out, minY);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
+    sResult = BEWriteS16(out, maxX);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
+    sResult = BEWriteS16(out, maxY);
+    CHK_CN(sResult, EOT_CORRUPT_FILE);
     sResult = seekAbsoluteThroughReserve(out, endPos);
   }
   returnedStatus = EOT_SUCCESS;
@@ -678,6 +687,8 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf,
     // decode a glyph outline
     enum EOTError result = decodeGlyph(streams, &sOut);
     if (result != EOT_SUCCESS) {
+      free(sOut.buf);
+      free(sLocaOut.buf);
       return result;
     }
     /* do padding */

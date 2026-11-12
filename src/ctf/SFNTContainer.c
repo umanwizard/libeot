@@ -205,7 +205,9 @@ enum EOTError dumpContainer(struct SFNTContainer *ctr, uint8_t **outBuf,
   *outBuf = s.buf;
   *outSize = s.size;
 CLEANUP:
-  /* lmao */
+  if (returnedStatus != EOT_SUCCESS) {
+    free(s.buf);
+  }
   return returnedStatus;
 }
 

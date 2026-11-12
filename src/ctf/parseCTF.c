@@ -577,15 +577,13 @@ enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
     CHK_RD2(sResult);
 
     numInstr = out->pos - (numInstrLocation + sizeof(uint16_t));
-    if (numInstr > 0){
-      unsigned currPos = out->pos;
-      sResult = seekAbsoluteThroughReserve(out, numInstrLocation);
-      CHK_RD2(sResult);
-      RD2(BEWriteU16, out, (uint16_t)numInstr, sResult);
-      CHK_RD2(sResult);
-      sResult = seekAbsoluteThroughReserve(out, currPos);
-      CHK_RD2(sResult);
-    }
+    unsigned currPos = out->pos;
+    sResult = seekAbsoluteThroughReserve(out, numInstrLocation);
+    CHK_RD2(sResult);
+    RD2(BEWriteU16, out, (uint16_t)numInstr, sResult);
+    CHK_RD2(sResult);
+    sResult = seekAbsoluteThroughReserve(out, currPos);
+    CHK_RD2(sResult);
   }
   return EOT_SUCCESS;
 }

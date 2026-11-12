@@ -697,7 +697,9 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
   if (sResult != EOT_STREAM_OK) {
     return EOT_CORRUPT_FILE;
   }
-  result = reserveTables(*out, offsetTable.numTables);
+  /* one more than the directory count, for the loca entry added below when the directory
+     has glyf but no loca */
+  result = reserveTables(*out, offsetTable.numTables + 1);
   if (result != EOT_SUCCESS) {
     return result;
   }

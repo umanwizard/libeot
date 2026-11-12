@@ -396,7 +396,7 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams,
     sResult = BEReadU8(in, &flags[i]);
     CHK_CN(sResult, EOT_CANT_ALLOCATE_MEMORY);
   }
-  unsigned currX = 0, currY = 0;
+  int32_t currX = 0, currY = 0;
   for (unsigned i = 0; i < totalPoints; ++i) {
     const struct TripletEncoding enc = tripletEncodings[flags[i] & 0x7F];
     unsigned moreBytes = enc.byteCount - 1;
@@ -420,6 +420,11 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams,
     currX += xCoords[i];
     yCoords[i] = enc.ySign * (dy + enc.deltaY);
     currY += yCoords[i];
+    /* glyph coordinates are int16 values */
+    if (currX < INT16_MIN || currX > INT16_MAX || currY < INT16_MIN || currY > INT16_MAX) {
+      returnedStatus = EOT_CORRUPT_FILE;
+      goto CLEANUP;
+    }
     minX = i16min(minX, currX);
     maxX = i16max(maxX, currX);
     minY = i16min(minY, currY);

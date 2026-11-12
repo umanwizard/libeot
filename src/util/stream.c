@@ -169,14 +169,15 @@ enum StreamResult seekRelativeThroughReserve(struct Stream *s, int offset)
   if (s->bitPos != 0) {
     return EOT_OFF_BYTE_BOUNDARY;
   }
-  int newPos = s->pos + offset;
-  if (newPos < 0) {
-    return EOT_NEGATIVE_SEEK;
-  }
-  if (newPos > s->reserved) {
+  if (offset < 0) {
+    /* 0u - (unsigned)offset is the distance back, for every negative offset */
+    if (0u - (unsigned)offset > s->pos) {
+      return EOT_NEGATIVE_SEEK;
+    }
+  } else if ((unsigned)offset > s->reserved - s->pos) {
     return EOT_SEEK_PAST_EOS;
   }
-  s->pos = (unsigned)newPos;
+  s->pos += (unsigned)offset;
   return EOT_STREAM_OK;
 }
 
@@ -218,7 +219,7 @@ enum StreamResult reserve(struct Stream *s, unsigned toReserve)
   return EOT_STREAM_OK;
 }
 #define CHK_RES(s, n)                                                          \
-  if (s->pos + n > s->reserved)                                                \
+  if (n > s->reserved - s->pos)                                                \
   return EOT_OUT_OF_RESERVED_SPACE
 #define FIX_SIZE(s)                                                            \
   if (s->pos > s->size)                                                        \

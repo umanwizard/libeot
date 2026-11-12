@@ -120,7 +120,7 @@ void EOTfreeMetadata(struct EOTMetadata *d)
 }
 
 #define EOT_ENSURE_SCANNER(N)                                                  \
-  if (scanner - bytes + N >= bytesLength) {                                    \
+  if (scanner - bytes + N > bytesLength) {                                    \
     EOTfreeMetadata(out);                                                      \
     return EOT_INSUFFICIENT_BYTES;                                             \
   }

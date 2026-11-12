@@ -20,6 +20,9 @@ enum EOTError writeFontBuffer(const uint8_t *font, unsigned fontSize,
 {
   enum EOTError result;
   uint8_t *buf = (uint8_t *)malloc(fontSize);
+  if (buf == NULL && fontSize != 0) {
+    return EOT_CANT_ALLOCATE_MEMORY;
+  }
   for (unsigned i = 0; i < fontSize; ++i) {
     if (encrypted) {
       buf[i] = font[i] ^ ENCRYPTION_KEY;

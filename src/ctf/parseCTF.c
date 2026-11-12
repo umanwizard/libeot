@@ -449,6 +449,11 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams,
   /* the below will be zero if we didn't go through the if (numContours > 0)
    * block. */
   unsigned unpackedCodeSize = out->pos - (codeSizeLocation + sizeof(uint16_t));
+  /* the instruction length field of a glyph is a uint16 */
+  if (unpackedCodeSize > UINT16_MAX) {
+    returnedStatus = EOT_CORRUPT_FILE;
+    goto CLEANUP;
+  }
   /* FIXME: Figure out if there is a huge savings from using the 'repeat' flag
    * and if so, use it. (but I kinda doubt there is.) */
   for (unsigned i = 0; i < totalPoints; ++i) {
@@ -556,7 +561,7 @@ enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
     https://learn.microsoft.com/en-us/typography/opentype/spec/glyf 
     uint16 numInstr
     */
-    uint16_t numInstr = 0;
+    unsigned numInstr = 0;
     unsigned numInstrLocation = out->pos;
     sResult = seekRelativeThroughReserve(out, sizeof(uint16_t));
     CHK_RD2(sResult);
@@ -577,6 +582,10 @@ enum EOTError decodeCompositeGlyph(struct Stream **streams, struct Stream *out)
     CHK_RD2(sResult);
 
     numInstr = out->pos - (numInstrLocation + sizeof(uint16_t));
+    /* the instruction length field of a glyph is a uint16 */
+    if (numInstr > UINT16_MAX) {
+      return EOT_CORRUPT_FILE;
+    }
     unsigned currPos = out->pos;
     sResult = seekAbsoluteThroughReserve(out, numInstrLocation);
     CHK_RD2(sResult);

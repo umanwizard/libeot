@@ -265,7 +265,7 @@ enum EOTError EOTfillMetadata(const uint8_t *bytes, unsigned bytesLength,
     EOTfreeMetadata(out);
     out->totalSize = totalSize;
     out->fontDataSize = fontDataSize;
-    if (bytesLength + bytes < out->fontDataSize + scanner) {
+    if (out->fontDataSize > bytesLength - (unsigned)(scanner - bytes)) {
       return EOT_CORRUPT_FILE;
     }
     enum EOTError result = EOTfillMetadataSpecifyingVersion(

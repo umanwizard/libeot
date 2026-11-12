@@ -707,6 +707,9 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
 {
   *out = NULL;
   enum EOTError result = constructContainer(out);
+  if (result != EOT_SUCCESS) {
+    return result;
+  }
   struct SFNTOffsetTable offsetTable;
   enum StreamResult sResult = parseOffsetTable(streams[0], &offsetTable);
   if (sResult != EOT_STREAM_OK) {

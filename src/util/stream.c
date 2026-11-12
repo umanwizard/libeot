@@ -142,7 +142,9 @@ enum StreamResult BEReadS32(struct Stream *s, int32_t *out)
 enum StreamResult BEPeekU8(struct Stream *s, uint8_t *out)
 {
   enum StreamResult ret1 = BEReadU8(s, out);
-  --s->pos;
+  if (ret1 == EOT_STREAM_OK) {
+    --s->pos;
+  }
   return ret1;
 }
 

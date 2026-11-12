@@ -300,6 +300,7 @@ enum EOTError decodePushInstructions(struct Stream *sIn, struct Stream *sOut,
       CHK_CN(sResult, EOT_SECOND_STREAM_INCOMPLETE);
       sResult = _dpi_put(val, sOut, &typeLastRead, &typeLastReadCount, data,
                          &dataIndex);
+      CHK_CN(sResult, EOT_SECOND_STREAM_INCOMPLETE);
       --remaining;
       break;
     }

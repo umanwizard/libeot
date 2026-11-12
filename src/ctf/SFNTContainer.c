@@ -29,7 +29,7 @@ enum EOTError reserveTables(struct SFNTContainer *ctr, unsigned num)
 enum EOTError constructContainer(struct SFNTContainer **out)
 {
   *out = (struct SFNTContainer *)malloc(sizeof(struct SFNTContainer));
-  if (!out) {
+  if (!*out) {
     return EOT_CANT_ALLOCATE_MEMORY;
   }
   (*out)->numTables = 0;

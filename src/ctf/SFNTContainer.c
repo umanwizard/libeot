@@ -59,6 +59,9 @@ enum StreamResult _writeTblCheckingSum(struct SFNTTable *tbl,
 {
   tbl->checksum = 0;
   tbl->offset = out->pos;
+  if (tbl->buf == NULL && tbl->bufSize != 0) {
+    return EOT_NOT_ENOUGH_DATA;
+  }
   struct Stream tblStream = constructStream(tbl->buf, tbl->bufSize);
   enum StreamResult sResult = EOT_STREAM_OK;
   enum StreamResult sResult2;

@@ -8,6 +8,7 @@
 
 #include <libeot/libeot.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "../util/stream.h"
 
@@ -23,6 +24,7 @@ struct SFNTContainer {
   unsigned numTables;
   unsigned _numTablesReserved;
   struct SFNTTable *tables;
+  bool isTTF;
 };
 
 enum EOTError constructContainer(struct SFNTContainer **out);

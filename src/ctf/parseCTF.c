@@ -676,6 +676,14 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf,
   if (maxTableSize > UINT32_MAX) {
     return EOT_CANT_ALLOCATE_MEMORY;
   }
+  /* no input byte becomes more than five glyf bytes: a point's flag byte gives
+     its flag and two coordinates, and a hop code with two values gives five
+     pushed values */
+  uint64_t maxFromInput =
+      5 * ((uint64_t)streams[0]->size + streams[1]->size + streams[2]->size);
+  if (maxTableSize > maxFromInput) {
+    maxTableSize = maxFromInput;
+  }
   struct Stream sOut = constructStream(NULL, 0);
   reserve(&sOut, (unsigned)maxTableSize);
   struct Stream sLocaOut = constructStream(NULL, 0);

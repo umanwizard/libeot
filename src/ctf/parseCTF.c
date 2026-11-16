@@ -385,6 +385,10 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams,
     totalPoints += pointsInContour;
     RD2(BEWriteS16, out, totalPoints - 1, sResult);
   }
+  /* every point has a flag byte in the input */
+  if (totalPoints > in->size - in->pos) {
+    return EOT_CORRUPT_FILE;
+  }
   uint8_t *flags = NULL;
   int16_t *xCoords = NULL, *yCoords = NULL;
   flags = (uint8_t *)malloc(totalPoints * sizeof(uint8_t));

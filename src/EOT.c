@@ -198,8 +198,7 @@ enum EOTError EOTfillMetadataSpecifyingVersion(const uint8_t *bytes,
                                          &(out->do_not_use)));
     if (out->version == VERSION_3) {
       EOT_ENSURE_SCANNER(4);
-      EOTreadU32LE(scanner); /* root string checksum */
-      scanner += 4;
+      scanner += 4; /* root string checksum */
       EOT_ENSURE_SCANNER(4);
       out->eudcInfo.codePage = EOTreadU32LE(scanner);
       scanner += 6;

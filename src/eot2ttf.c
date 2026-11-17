@@ -26,13 +26,9 @@ int main(int argc, char **argv)
     usage(argv[0]);
     return 1;
   }
-  struct stat st;
-  if (stat(argv[1], &st) != 0) {
-    fprintf(stderr, "The file %s could not be opened.\n", argv[1]);
-    return 1;
-  }
   int fildes = open(argv[1], O_RDONLY);
-  if (fildes == -1) {
+  struct stat st;
+  if (fildes == -1 || fstat(fildes, &st) != 0) {
     fprintf(stderr, "The file %s could not be opened.\n", argv[1]);
     return 1;
   }

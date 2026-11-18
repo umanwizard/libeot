@@ -14,27 +14,32 @@ enum StreamResult BEReadRestAsU32(struct Stream *s, uint32_t *out)
   if (s->pos >= s->size) {
     return EOT_NOT_ENOUGH_DATA;
   }
-  uint8_t o8;
-  uint16_t o16;
+  enum StreamResult result;
+  uint8_t o8 = 0;
+  uint16_t o16 = 0;
+  uint32_t value = 0;
   switch (s->size - s->pos) {
   case 1:
-    BEReadU8(s, &o8);
-    *out = ((uint32_t)o8) << 24;
+    result = BEReadU8(s, &o8);
+    value = ((uint32_t)o8) << 24;
     break;
   case 2:
-    BEReadU16(s, &o16);
-    *out = ((uint32_t)o16) << 16;
+    result = BEReadU16(s, &o16);
+    value = ((uint32_t)o16) << 16;
     break;
   case 3:
-    BEReadU24(s, out);
-    *out <<= 8;
+    result = BEReadU24(s, &value);
+    value <<= 8;
     break;
   case 4:
   default:
-    BEReadU32(s, out);
+    result = BEReadU32(s, &value);
     break;
   }
-  return EOT_STREAM_OK;
+  if (result == EOT_STREAM_OK) {
+    *out = value;
+  }
+  return result;
 }
 
 struct Stream constructStream(uint8_t *buf, unsigned size)

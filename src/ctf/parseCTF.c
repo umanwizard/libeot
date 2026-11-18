@@ -703,7 +703,12 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf,
     }
     /* do padding */
     if (sOut.pos % 2) {
-      BEWriteU8(&sOut, 0);
+      sResult = BEWriteU8(&sOut, 0);
+      if (sResult != EOT_STREAM_OK) {
+        free(sOut.buf);
+        free(sLocaOut.buf);
+        return EOT_LOGIC_ERROR;
+      }
     }
     /* add an entry to the location table */
     if (shortLoca) {

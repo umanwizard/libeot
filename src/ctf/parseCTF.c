@@ -753,6 +753,9 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     if (strncmp(tag, "hdmx", 4) == 0 || strncmp(tag, "VDMX", 4) == 0 ) {
       // skip checkSum, offset, length to next table offset
       sResult = seekRelative(streams[0], 12);
+      if (sResult != EOT_STREAM_OK) {
+        return EOT_CORRUPT_FILE;
+      }
       logWarning("Ignoring hdmx/VDMX table -- will be fixed in a future release.\n");
       continue;
     }

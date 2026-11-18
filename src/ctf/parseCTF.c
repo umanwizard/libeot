@@ -364,6 +364,10 @@ enum EOTError decodeSimpleGlyph(int16_t numContours, struct Stream **streams,
     return EOT_SUCCESS;
   }
   struct Stream *in = streams[0];
+  /* every contour has a point count of at least one byte in the input */
+  if ((unsigned)numContours > in->size - in->pos) {
+    return EOT_CORRUPT_FILE;
+  }
   enum StreamResult sResult;
   enum EOTError returnedStatus = EOT_SUCCESS;
   unsigned boundingBoxLocation;

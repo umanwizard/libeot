@@ -758,6 +758,9 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
     }
     
     result = addTable(*out, tag, &tbl);
+    if (result != EOT_SUCCESS) {
+      return result;
+    }
     /* skip the checksum, which we are not using for now. */
     sResult = seekRelative(streams[0], 4);
     if (sResult != EOT_STREAM_OK) {

@@ -44,7 +44,7 @@ enum EOTError EOTgetString(const uint8_t **scanner, const uint8_t *begin,
   {
     return EOT_BOGUS_STRING_SIZE;
   }
-  if (*scanner - begin + *size > bytesLength) {
+  if (*size > bytesLength - (*scanner - begin)) {
     return EOT_INSUFFICIENT_BYTES;
   }
   if (*size != 0) {

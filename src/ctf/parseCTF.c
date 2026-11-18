@@ -663,8 +663,6 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf,
   if (sResult != EOT_STREAM_OK) {
     return EOT_CORRUPT_FILE;
   }
-  bool overranAllocatedSpace = false;
-  bool notEnoughGlyphs = false;
   seekAbsolute(streams[1], 0);
   seekAbsolute(streams[2], 0);
   unsigned maxSimpleGlyphSize = 10 + 2 * maxpData->maxContours + 2 +
@@ -718,12 +716,6 @@ enum EOTError populateGlyfAndLoca(struct SFNTTable *glyf,
   glyf->bufSize = sOut.size;
   loca->buf = sLocaOut.buf;
   loca->bufSize = sLocaOut.size;
-  if (notEnoughGlyphs) {
-    return EOT_WARN_NOT_ENOUGH_GLYPHS;
-  }
-  if (overranAllocatedSpace) {
-    return EOT_WARN_NOT_ENOUGH_SPACE_RESERVED;
-  }
   return EOT_SUCCESS;
 }
 

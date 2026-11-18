@@ -234,6 +234,10 @@ enum EOTError decodePushInstructions(struct Stream *sIn, struct Stream *sOut,
                short */
   unsigned typeLastReadCount = 0;
   unsigned dataIndex = 0;
+  /* at most five values come from three bytes of the input, by the 0xFC hop code */
+  if (3 * (uint64_t)pushCount > 5 * (uint64_t)(sIn->size - sIn->pos)) {
+    return EOT_SECOND_STREAM_INCOMPLETE;
+  }
   int16_t *data = (int16_t *)malloc(sizeof(int16_t) * pushCount);
   enum EOTError returnedStatus;
   if (!data) {

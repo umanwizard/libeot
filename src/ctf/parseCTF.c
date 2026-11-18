@@ -748,6 +748,10 @@ enum EOTError parseCTF(struct Stream **streams, struct SFNTContainer **out)
   if (sResult != EOT_STREAM_OK) {
     return EOT_CORRUPT_FILE;
   }
+  /* a directory entry is 16 bytes: tag, checksum, offset and length */
+  if (offsetTable.numTables > (streams[0]->size - streams[0]->pos) / 16) {
+    return EOT_CORRUPT_FILE;
+  }
   /* one more than the directory count, for the loca entry added below when the directory
      has glyf but no loca */
   result = reserveTables(*out, offsetTable.numTables + 1);

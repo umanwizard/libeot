@@ -18,8 +18,9 @@ enum EOTError TTFParseHead(struct SFNTTable *tbl, struct TTFheadData *out)
   }
   *out = (struct TTFheadData){0};
   struct Stream s = constructStream(tbl->buf, tbl->bufSize);
-  seekAbsolute(&s, 50);
-  BEReadS16(&s, &out->indexToLocFormat);
+  enum StreamResult sResult = seekAbsolute(&s, 50);
+  CHK_RD2(sResult);
+  RD2(BEReadS16, &s, &out->indexToLocFormat, sResult);
   return EOT_SUCCESS;
 }
 

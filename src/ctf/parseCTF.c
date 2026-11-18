@@ -77,6 +77,10 @@ enum EOTError unpackCVT(struct SFNTTable *out, struct Stream *sIn)
   }
   uint16_t tableLength;
   RD2(BEReadU16, sIn, &tableLength, sResult);
+  /* every value takes at least one byte of the input */
+  if (tableLength > sIn->size - sIn->pos) {
+    return EOT_CORRUPT_FILE;
+  }
   struct Stream sOut = constructStream(NULL, 0);
   sResult = reserve(&sOut, tableLength * sizeof(int16_t));
   CHK_RD2(sResult);
